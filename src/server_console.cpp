@@ -242,6 +242,77 @@ void ServerConsole::certificateOperations() {
     }
 }
 
+void ServerConsole::listCertificates() {
+    auto certificates = db.getAllCertificates();
+    
+    system("cls");
+    std::cout << "=== All Certificates ===" << std::endl;
+    std::cout << "------------------------------------\n";
+    std::cout << std::left << std::setw(5) << "ID" << " | " 
+              << std::setw(15) << "Serial" << " | " 
+              << std::setw(20) << "Subject" << " | " 
+              << std::setw(10) << "Status" << " | " 
+              << "Expiry" << std::endl;
+    std::cout << "------------------------------------\n";
+    
+    for (const auto& cert : certificates) {
+        std::cout << std::left << std::setw(5) << cert.certificateID << " | " 
+                  << std::setw(15) << cert.serialNumber.substr(0, 12) + "..." << " | " 
+                  << std::setw(20) << cert.subjectName << " | " 
+                  << std::setw(10) << cert.status << " | " 
+                  << cert.validTo << std::endl;
+    }
+    
+    waitForEnter();
+}
+
+void ServerConsole::viewCertificateDetails() {
+    int certID = getIntInput("Enter certificate ID: ");
+    
+    auto certInfo = db.getCertificateInfo(certID);
+    String certData = db.getCertificateData(certID);
+    
+    if (certData.empty()) {
+        std::cout << "Certificate not found." << std::endl;
+        waitForEnter();
+        return;
+    }
+    
+    system("cls");
+    std::cout << "=== Certificate Details ===" << std::endl;
+    std::cout << "ID: " << certID << std::endl;
+    std::cout << "Serial Number: " << certInfo.serialNumber << std::endl;
+    std::cout << "Owner ID: " << certInfo.ownerID << std::endl;
+    std::cout << "\nCertificate Data:\n" << certData << std::endl;
+    
+    waitForEnter();
+}
+
+void ServerConsole::approveCertificateRequest() {
+    int requestID = getIntInput("Enter CSR ID to approve: ");
+    int validityDays = getIntInput("Enter validity period in days (default: 365): ");
+    
+    int certID = ca.issueCertificate(requestID, validityDays);
+    if (certID > 0) {
+        std::cout << "Certificate issued successfully. ID: " << certID << std::endl;
+    } else {
+        std::cout << "Failed to issue certificate." << std::endl;
+    }
+    waitForEnter();
+}
+
+void ServerConsole::revokeCertificate() {
+    int certID = getIntInput("Enter certificate ID to revoke: ");
+    String reason = getInput("Enter revocation reason: ");
+    
+    if (ca.revokeCertificate(certID, reason, "admin")) {
+        std::cout << "Certificate revoked successfully." << std::endl;
+    } else {
+        std::cout << "Failed to revoke certificate." << std::endl;
+    }
+    waitForEnter();
+}
+
 String ServerConsole::getInput(const String& prompt) {
     String input;
     std::cout << prompt;

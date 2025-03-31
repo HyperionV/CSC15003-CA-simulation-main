@@ -105,7 +105,18 @@ bool ClientSocket::connect(const String& host, int port) {
     serverAddr.sin_port = htons(port);
     
     // Convert host to IP
-    inet_pton(AF_INET, host.c_str(), &serverAddr.sin_addr);
+    int result = inet_pton(AF_INET, host.c_str(), &serverAddr.sin_addr);
+    if (result <= 0) {
+        // If conversion fails or input is not valid IP, fallback to localhost IP
+        if (host == "localhost") {
+            inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
+        } else {
+            std::cerr << "Invalid address: " << host << ", error: " << (result == 0 ? "Not a valid address" : "Conversion error") << std::endl;
+            closesocket(clientSocket);
+            clientSocket = INVALID_SOCKET;
+            return false;
+        }
+    }
     
     // Connect to server
     if (::connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {

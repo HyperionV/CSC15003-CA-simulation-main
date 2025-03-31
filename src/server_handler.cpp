@@ -3,6 +3,7 @@
 #endif
 
 #include "../include/server_handler.h"
+#include <vector>
 
 ServerHandler::ServerHandler(AuthenticationSystem& authSystem, 
                            CertificateAuthority& ca, 
@@ -54,21 +55,56 @@ void ServerHandler::stop() {
 }
 
 void ServerHandler::handleClient(SOCKET clientSocket) {
-    // Create a buffer for receiving data
-    char buffer[4096];
-    int bytesReceived;
+    // Receive and process client messages
+    bool connected = true;
     
-    // Receive data from client
-    while ((bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0)) > 0) {
-        // Null-terminate the received data
-        buffer[bytesReceived] = '\0';
+    while (connected) {
+        // First receive the length prefix
+        uint32_t length = 0;
+        int bytesReceived = recv(clientSocket, (char*)&length, sizeof(length), 0);
         
-        // Process the request
-        String request(buffer, bytesReceived);
+        if (bytesReceived <= 0) {
+            if (bytesReceived == 0) {
+                // Connection closed
+                std::cout << "Client disconnected" << std::endl;
+            } else {
+                std::cerr << "Receive length failed: " << WSAGetLastError() << std::endl;
+            }
+            break;
+        }
+        
+        // Now receive the exact message length
+        std::vector<char> buffer(length + 1, 0);
+        bytesReceived = recv(clientSocket, buffer.data(), length, 0);
+        
+        if (bytesReceived <= 0) {
+            if (bytesReceived == 0) {
+                // Connection closed
+                std::cout << "Client disconnected" << std::endl;
+            } else {
+                std::cerr << "Receive message failed: " << WSAGetLastError() << std::endl;
+            }
+            break;
+        }
+        
+        // Null-terminate the received data and process it
+        buffer[bytesReceived] = '\0';
+        String request(buffer.data(), bytesReceived);
         String response = processRequest(request);
         
         // Send response to client
-        send(clientSocket, response.c_str(), response.length(), 0);
+        // First send the length prefix
+        length = response.length();
+        if (send(clientSocket, (char*)&length, sizeof(length), 0) == SOCKET_ERROR) {
+            std::cerr << "Send length failed: " << WSAGetLastError() << std::endl;
+            break;
+        }
+        
+        // Then send the actual response
+        if (send(clientSocket, response.c_str(), length, 0) == SOCKET_ERROR) {
+            std::cerr << "Send response failed: " << WSAGetLastError() << std::endl;
+            break;
+        }
     }
     
     // Close the client socket

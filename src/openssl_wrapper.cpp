@@ -313,7 +313,8 @@ bool OpenSSLWrapper::checkCertificateRevocation(const String& certPEM, const Str
     bool revoked = false;
     for (int i = 0; i < sk_X509_REVOKED_num(X509_CRL_get_REVOKED(crl)); i++) {
         X509_REVOKED* rev = sk_X509_REVOKED_value(X509_CRL_get_REVOKED(crl), i);
-        if (ASN1_INTEGER_cmp(rev->serialNumber, cert_serial) == 0) {
+        const ASN1_INTEGER* rev_serial = X509_REVOKED_get0_serialNumber(rev);
+        if (ASN1_INTEGER_cmp(rev_serial, cert_serial) == 0) {
             revoked = true;
             break;
         }

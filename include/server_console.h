@@ -24,6 +24,12 @@ private:
     void manageUsers();
     void certificateOperations();
     
+    // Certificate operation helper methods
+    void listCertificates();
+    void viewCertificateDetails();
+    void approveCertificateRequest();
+    void revokeCertificate();
+    
     // Helper functions
     void displayServerStatus();
     String getInput(const String& prompt);

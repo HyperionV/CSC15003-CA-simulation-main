@@ -38,17 +38,28 @@ set(SERVER_SOURCES
       src/socket_comm.cpp
       src/server_handler.cpp
       src/sqlite3.c
+      )
+      
+      # Source files for the client
+set(CLIENT_SOURCES
       src/certificate_authority.cpp
-  )
-
-  # Source files for the client
-  set(CLIENT_SOURCES
       src/client_main.cpp
       src/openssl_wrapper.cpp
       src/client_console.cpp
       src/socket_comm.cpp
+      src/database.cpp
       src/sqlite3.c
   )
+
+# Source files for the tests
+set(TEST_SOURCES
+    test/test_ca_system.cpp
+    src/database.cpp
+    src/auth_system.cpp
+    src/openssl_wrapper.cpp
+    src/certificate_authority.cpp
+    src/sqlite3.c
+)
 
 # Create server executable
 add_executable(ca_server ${SERVER_SOURCES})
@@ -57,6 +68,10 @@ target_link_libraries(ca_server ${OPENSSL_LIBRARIES})
 # Create client executable
 add_executable(ca_client ${CLIENT_SOURCES})
 target_link_libraries(ca_client ${OPENSSL_LIBRARIES})
+
+# Create test executable
+add_executable(ca_test ${TEST_SOURCES})
+target_link_libraries(ca_test ${OPENSSL_LIBRARIES})
 
 # Ensure data directory exists
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)
@@ -67,4 +82,5 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data/db)
 if(WIN32)
 target_link_libraries(ca_server ws2_32)
 target_link_libraries(ca_client ws2_32)
+target_link_libraries(ca_test ws2_32)
 endif()
