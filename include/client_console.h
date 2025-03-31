@@ -35,6 +35,7 @@ private:
     void viewCertificates();
     void revokeCertificate();
     void downloadCertificate();
+    void validateCertificate();
     
     // Helper functions
     String getInput(const String& prompt);

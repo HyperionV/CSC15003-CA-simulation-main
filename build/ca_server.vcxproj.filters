@@ -19,6 +19,12 @@
     <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\server_console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\socket_comm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\server_handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\sqlite3.c">
       <Filter>Source Files</Filter>
     </ClCompile>

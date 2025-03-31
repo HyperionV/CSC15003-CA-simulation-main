@@ -196,7 +196,6 @@ bool OpenSSLWrapper::verifyCertificate(const String& certPEM, const String& caCe
     BIO_free(certBio);
     
     if (!cert) {
-        std::cerr << "Failed to parse certificate" << std::endl;
         return false;
     }
     
@@ -206,23 +205,125 @@ bool OpenSSLWrapper::verifyCertificate(const String& certPEM, const String& caCe
     BIO_free(caCertBio);
     
     if (!caCert) {
-        std::cerr << "Failed to parse CA certificate" << std::endl;
         X509_free(cert);
         return false;
     }
     
-    // Get CA's public key
-    EVP_PKEY* caPubKey = X509_get_pubkey(caCert);
+    // Create certificate store
+    X509_STORE* store = X509_STORE_new();
+    X509_STORE_add_cert(store, caCert);
     
-    // Verify certificate signature
-    int result = X509_verify(cert, caPubKey);
+    // Create verification context
+    X509_STORE_CTX* ctx = X509_STORE_CTX_new();
+    X509_STORE_CTX_init(ctx, store, cert, nullptr);
+    
+    // Verify certificate
+    int result = X509_verify_cert(ctx);
     
     // Cleanup
-    EVP_PKEY_free(caPubKey);
+    X509_STORE_CTX_free(ctx);
+    X509_STORE_free(store);
     X509_free(cert);
     X509_free(caCert);
     
     return (result > 0);
+}
+
+bool OpenSSLWrapper::validateCertificateChain(const std::vector<String>& certChain) {
+    if (certChain.empty()) {
+        return false;
+    }
+    
+    // Create certificate store
+    X509_STORE* store = X509_STORE_new();
+    
+    // Parse all certificates
+    std::vector<X509*> certs;
+    for (const auto& certPEM : certChain) {
+        BIO* certBio = BIO_new_mem_buf(certPEM.c_str(), -1);
+        X509* cert = PEM_read_bio_X509(certBio, nullptr, nullptr, nullptr);
+        BIO_free(certBio);
+        
+        if (!cert) {
+            // Cleanup
+            for (auto c : certs) {
+                X509_free(c);
+            }
+            X509_STORE_free(store);
+            return false;
+        }
+        
+        certs.push_back(cert);
+    }
+    
+    // Add all certificates except the first one to the store
+    for (size_t i = 1; i < certs.size(); i++) {
+        X509_STORE_add_cert(store, certs[i]);
+    }
+    
+    // Create verification context
+    X509_STORE_CTX* ctx = X509_STORE_CTX_new();
+    X509_STORE_CTX_init(ctx, store, certs[0], nullptr);
+    
+    // Verify certificate chain
+    int result = X509_verify_cert(ctx);
+    
+    // Cleanup
+    X509_STORE_CTX_free(ctx);
+    X509_STORE_free(store);
+    for (auto cert : certs) {
+        X509_free(cert);
+    }
+    
+    return (result > 0);
+}
+
+bool OpenSSLWrapper::checkCertificateRevocation(const String& certPEM, const String& crlPEM) {
+    // Parse certificate
+    BIO* certBio = BIO_new_mem_buf(certPEM.c_str(), -1);
+    X509* cert = PEM_read_bio_X509(certBio, nullptr, nullptr, nullptr);
+    BIO_free(certBio);
+    
+    if (!cert) {
+        return false;
+    }
+    
+    // Parse CRL
+    BIO* crlBio = BIO_new_mem_buf(crlPEM.c_str(), -1);
+    X509_CRL* crl = PEM_read_bio_X509_CRL(crlBio, nullptr, nullptr, nullptr);
+    BIO_free(crlBio);
+    
+    if (!crl) {
+        X509_free(cert);
+        return false;
+    }
+    
+    // Check if certificate is in CRL
+    int idx = X509_CRL_get_ext_by_NID(crl, NID_crl_number, -1);
+    if (idx == -1) {
+        X509_free(cert);
+        X509_CRL_free(crl);
+        return false;
+    }
+    
+    // Get certificate serial number
+    ASN1_INTEGER* cert_serial = X509_get_serialNumber(cert);
+    
+    // Check if certificate is revoked
+    bool revoked = false;
+    for (int i = 0; i < sk_X509_REVOKED_num(X509_CRL_get_REVOKED(crl)); i++) {
+        X509_REVOKED* rev = sk_X509_REVOKED_value(X509_CRL_get_REVOKED(crl), i);
+        if (ASN1_INTEGER_cmp(rev->serialNumber, cert_serial) == 0) {
+            revoked = true;
+            break;
+        }
+    }
+    
+    // Cleanup
+    X509_free(cert);
+    X509_CRL_free(crl);
+    
+    return revoked;
 }
 
 // Generate CRL

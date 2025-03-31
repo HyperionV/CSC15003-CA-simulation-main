@@ -1,159 +1,245 @@
-# Build Errors and Warnings Analysis
+# CA Management System Build Errors
 
-This document analyzes and provides solutions for all errors and warnings encountered during the CMake build process of the CA Management System application.
+This document details the build errors encountered when building the CA Management System using CMake, along with explanations and solutions.
 
-## Issue 1: Exception Handling Warning C4530
+## Error 1: Missing Source Files in CMakeLists.txt
 
-### Error
-```
-warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
-```
++ **Error**  
+  ```
+  client_console.obj : error LNK2019: unresolved external symbol "public: static bool __cdecl SocketManager::initialize(void)" (?initialize@SocketManager@@SA_NXZ) referenced in function [...]
+  client_console.obj : error LNK2019: unresolved external symbol "public: __cdecl ClientSocket::ClientSocket(void)" (??0ClientSocket@@QEAA@XZ) referenced in function [...]
+  client_console.obj : error LNK2019: unresolved external symbol "public: __cdecl ClientSocket::~ClientSocket(void)" (??1ClientSocket@@QEAA@XZ) referenced in function [...]
+  client_console.obj : error LNK2019: unresolved external symbol "public: bool __cdecl ClientSocket::connect(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,int)" (?connect@ClientSocket@@QEAA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z) referenced in function [...]
+  client_console.obj : error LNK2019: unresolved external symbol "public: bool __cdecl ClientSocket::send(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?send@ClientSocket@@QEAA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) referenced in function [...]
+  client_console.obj : error LNK2019: unresolved external symbol "public: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl ClientSocket::receive(void)" (?receive@ClientSocket@@QEAA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ) referenced in function [...]
+  client_console.obj : error LNK2019: unresolved external symbol "public: void __cdecl ClientSocket::close(void)" (?close@ClientSocket@@QEAAXXZ) referenced in function [...]
+  E:\HCMUS\a-crypto\project-fullscale\build\Debug\ca_client.exe : fatal error LNK1120: 7 unresolved externals [E:\HCMUS\a-crypto\project-fullscale\build\ca_client.vcxproj]
+  ```
 
-### Description
-This warning occurs when code in the project uses C++ exception handling (try/catch blocks), but the compiler is not configured to properly manage the stack unwinding process when exceptions are thrown. Without proper exception handling configuration, destructors for objects on the stack may not be called when an exception is thrown, leading to potential resource leaks and undefined behavior.
++ **Description**  
+  These "unresolved external symbol" errors (LNK2019) indicate that the linker cannot find the implementation of the `SocketManager` and `ClientSocket` classes. The code is referring to these classes and their methods, but the implementations are not being included in the compilation process.
 
-### Root Cause
-The root cause is that the project's compiler options do not include the `/EHsc` flag, which is required for proper C++ exception handling. This flag tells the compiler to:
-- Generate code supporting C++ exceptions
-- Assume `extern "C"` functions do not throw exceptions
-- Enable proper stack unwinding and calling of destructors during exception propagation
++ **Root Cause**  
+  The implementation of these classes is in `socket_comm.cpp`, but this file is not included in the CMakeLists.txt file as part of either the SERVER_SOURCES or CLIENT_SOURCES lists. Therefore, the implementations are not being compiled and linked with the rest of the code.
 
-### Similar Errors
-- Warning C4577: `'noexcept' used with no exception handling mode specified; termination on exception is not guaranteed. Specify /EHsc`
-- Runtime errors or crashes when exceptions are thrown
-- Resource leaks or memory corruption when exceptions occur
++ **Similar Errors**  
+  Any LNK2019 or LNK2001 errors referring to unresolved external symbols from classes or functions can have a similar cause. If the implementation exists but isn't being included in the build, this error will occur.
 
-### Approaches for Solving
++ **Approaches for Solving**  
+  **Production Solution:**  
+  Add `socket_comm.cpp` to both the SERVER_SOURCES and CLIENT_SOURCES lists in CMakeLists.txt:
+  ```cmake
+  # Source files for the server
+  set(SERVER_SOURCES
+      src/main.cpp
+      src/database.cpp
+      src/auth_system.cpp
+      src/openssl_wrapper.cpp
+      src/certificate_authority.cpp
+      src/server_console.cpp
+      src/socket_comm.cpp
+      src/server_handler.cpp
+      src/sqlite3.c
+  )
 
-#### Production Solution
-1. Add the `/EHsc` compiler flag to the project's CMake configuration:
+  # Source files for the client
+  set(CLIENT_SOURCES
+      src/client_main.cpp
+      src/openssl_wrapper.cpp
+      src/client_console.cpp
+      src/socket_comm.cpp
+      src/sqlite3.c
+  )
+  ```
+
+  **Temporary Solution:**  
+  If you need a quick fix to move forward with testing, you could temporarily inline the implementations of these classes directly in their header files. However, this is not recommended for a production build as it violates good software engineering practices.
+
++ **Notes**  
+  - When adding new source files to a project, always remember to update the CMakeLists.txt file.
+  - For Visual Studio projects, it's common to organize code with header files in "include" directories and implementation files in "src" directories, but both must be properly included in the build process.
+
++ **Reference Documents**  
+  - [Microsoft: LNK2019 unresolved external symbol](https://learn.microsoft.com/en-us/cpp/error-messages/tool-errors/linker-tools-error-lnk2019)
+  - [StackOverflow: What is an undefined reference/unresolved external symbol error?](https://stackoverflow.com/questions/12573816/what-is-an-undefined-reference-unresolved-external-symbol-error-and-how-do-i-fix)
+  - [CMake Documentation: add_executable](https://cmake.org/cmake/help/latest/command/add_executable.html)
+
+## Error 2: Missing ServerHandler Implementation
+
++ **Error**  
+  ```
+  main.obj : error LNK2019: unresolved external symbol "public: __cdecl ServerSocket::~ServerSocket(void)" (??1ServerSocket@@QEAA@XZ) referenced in function "public: __cdecl ServerHandler::~ServerHandler(void)" (??1ServerHandler@@QEAA@XZ) [E:\HCMUS\a-crypto\project-fullscale\build\ca_server.vcxproj]
+  main.obj : error LNK2019: unresolved external symbol "public: __cdecl ServerHandler::ServerHandler(class AuthenticationSystem &,class CertificateAuthority &,class DatabaseManager &)" (??0ServerHandler@@QEAA@AEAVAuthenticationSystem@@AEAVCertificateAuthority@@AEAVDatabaseManager@@@Z) referenced in function main [E:\HCMUS\a-crypto\project-fullscale\build\ca_server.vcxproj]
+  main.obj : error LNK2019: unresolved external symbol "public: bool __cdecl ServerHandler::start(int)" (?start@ServerHandler@@QEAA_NH@Z) referenced in function "void __cdecl runServerHandler(class ServerHandler &)" (?runServerHandler@@YAXAEAVServerHandler@@@Z) [E:\HCMUS\a-crypto\project-fullscale\build\ca_server.vcxproj]
+  main.obj : error LNK2019: unresolved external symbol "public: void __cdecl ServerHandler::stop(void)" (?stop@ServerHandler@@QEAAXXZ) referenced in function main [E:\HCMUS\a-crypto\project-fullscale\build\ca_server.vcxproj]
+  E:\HCMUS\a-crypto\project-fullscale\build\Debug\ca_server.exe : fatal error LNK1120: 4 unresolved externals [E:\HCMUS\a-crypto\project-fullscale\build\ca_server.vcxproj]
+  ```
+
++ **Description**  
+  These errors indicate that the linker cannot find the implementation of the `ServerHandler` and `ServerSocket` classes. The main function is trying to use these classes, but the implementations are not available during linking.
+
++ **Root Cause**  
+  The implementation of the `ServerHandler` class is in `server_handler.cpp`, and the `ServerSocket` class is in `socket_comm.cpp`, but these files are not included in the SERVER_SOURCES list in CMakeLists.txt. Therefore, these implementations are not being compiled and linked with the server executable.
+
++ **Similar Errors**  
+  Any LNK2019 errors referring to server-related functionality could have a similar cause. This is particularly common in client-server applications where server-specific code is missing from the build.
+
++ **Approaches for Solving**  
+  **Production Solution:**  
+  Add `server_handler.cpp` and ensure `socket_comm.cpp` is included in the SERVER_SOURCES list in CMakeLists.txt (as described in Error 1).
+
+  **Temporary Solution:**  
+  If you're only testing the client functionality, you could temporarily comment out or create dummy stubs for the server-related code to bypass these errors. However, this is only suitable for testing specific components in isolation.
+
++ **Notes**  
+  - Server and client components often share common functionality (like socket communication), so ensure that shared implementations are included in both builds.
+  - In a client-server architecture, it's important to carefully manage dependencies and ensure that each executable has access to all required implementations.
+
++ **Reference Documents**  
+  - [Microsoft: LNK2019 unresolved external symbol](https://learn.microsoft.com/en-us/cpp/error-messages/tool-errors/linker-tools-error-lnk2019)
+  - [StackOverflow: Resolving LNK2019 errors in C++ project](https://stackoverflow.com/questions/37132549/resolving-lnk2019-errors-in-c-project)
+
+## Error 3: Missing Windows Socket Library Linkage
+
++ **Error**  
+  While not explicitly shown in the provided error message, the build is failing because of missing WinSock library linkage, which is required for socket programming on Windows.
+
++ **Description**  
+  Windows socket programming requires linking against the Ws2_32.lib library. While there is a `#pragma comment(lib, "ws2_32.lib")` directive in the socket_comm.h file, CMake might not be properly handling this directive, leading to linker errors when socket functions are used.
+
++ **Root Cause**  
+  The CMakeLists.txt file does not explicitly link against the Ws2_32.lib library, which is required for Windows socket programming.
+
++ **Similar Errors**  
+  Any linker errors related to WinSock functions like WSAStartup, socket, connect, etc., would have a similar cause.
+
++ **Approaches for Solving**  
+  **Production Solution:**  
+  Explicitly link against the Ws2_32.lib library in CMakeLists.txt:
+  ```cmake
+  if(WIN32)
+    target_link_libraries(ca_server ws2_32)
+    target_link_libraries(ca_client ws2_32)
+  endif()
+  ```
+
+  **Temporary Solution:**  
+  If you're working on a Windows-only build and want a quick fix, you could keep the `#pragma comment(lib, "ws2_32.lib")` directive, but it's better to use the CMake approach for cross-platform compatibility.
+
++ **Notes**  
+  - Windows socket programming requires proper initialization using WSAStartup and cleanup using WSACleanup.
+  - On non-Windows platforms, different socket libraries or system calls might be used, so it's important to handle platform-specific code properly for cross-platform compatibility.
+  - CMake provides platform-independent ways to link libraries, which is preferred over compiler-specific directives.
+
++ **Reference Documents**  
+  - [Microsoft: Creating a Basic Winsock Application](https://learn.microsoft.com/en-us/windows/win32/winsock/creating-a-basic-winsock-application)
+  - [CMake: target_link_libraries](https://cmake.org/cmake/help/latest/command/target_link_libraries.html)
+  - [StackOverflow: Linking WinSock library in CMake](https://stackoverflow.com/questions/1372480/c-undefined-reference-to-wsastartup)
+
+## Error 4: Potential Header File Conflicts
+
++ **Error**  
+  While not explicitly shown in the provided error message, there could be header file conflicts contributing to the build issues.
+
++ **Description**  
+  When using Windows headers like Windows.h and WinSock2.h, there can be conflicts if they're not included in the correct order or with the proper directives.
+
++ **Root Cause**  
+  The Windows.h header file includes WinSock.h (the older Windows Sockets 1.1 header) by default, which can conflict with WinSock2.h (the Windows Sockets 2.0 header) that's explicitly included in the project.
+
++ **Similar Errors**  
+  Header conflicts can manifest as various compilation errors, from redefinition errors to type conflicts and unexpected behavior.
+
++ **Approaches for Solving**  
+  **Production Solution:**  
+  Ensure that Windows headers are included in the correct order with the WIN32_LEAN_AND_MEAN macro defined:
+  ```cpp
+  #ifndef WIN32_LEAN_AND_MEAN
+  #define WIN32_LEAN_AND_MEAN
+  #endif
+  
+  #include <windows.h>  // If needed
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
+  ```
+
+  **Temporary Solution:**  
+  If you're encountering specific header conflicts, you might need to analyze the include order and dependencies more carefully. As a quick test, you could try to isolate the problematic files and test them separately.
+
++ **Notes**  
+  - The WIN32_LEAN_AND_MEAN macro excludes rarely-used Windows headers, which helps avoid conflicts and reduces compilation time.
+  - In a cross-platform project, it's important to properly conditionally include platform-specific headers.
+  - Consider using platform abstraction libraries or patterns to encapsulate platform-specific code.
+
++ **Reference Documents**  
+  - [Microsoft: WinSock Header Files](https://learn.microsoft.com/en-us/windows/win32/winsock/windows-sockets-start-page-2)
+  - [Microsoft: WIN32_LEAN_AND_MEAN](https://learn.microsoft.com/en-us/windows/win32/winprog/using-the-windows-headers)
+  - [StackOverflow: Windows.h and Winsock2.h conflict](https://stackoverflow.com/questions/11726149/cant-include-winsock2-h-in-windows-h)
+
+## Complete Solution
+
+To resolve all these issues, follow these steps:
+
+1. Update the CMakeLists.txt file to include all necessary source files:
    ```cmake
-   if(MSVC)
-     add_compile_options(/EHsc)
+   # Source files for the server
+   set(SERVER_SOURCES
+       src/main.cpp
+       src/database.cpp
+       src/auth_system.cpp
+       src/openssl_wrapper.cpp
+       src/certificate_authority.cpp
+       src/server_console.cpp
+       src/socket_comm.cpp
+       src/server_handler.cpp
+       src/sqlite3.c
+   )
+
+   # Source files for the client
+   set(CLIENT_SOURCES
+       src/client_main.cpp
+       src/openssl_wrapper.cpp
+       src/client_console.cpp
+       src/socket_comm.cpp
+       src/sqlite3.c
+   )
+   ```
+
+2. Add explicit linking against the Ws2_32.lib library:
+   ```cmake
+   if(WIN32)
+     target_link_libraries(ca_server ws2_32)
+     target_link_libraries(ca_client ws2_32)
    endif()
    ```
-   Add this to the main CMakeLists.txt file.
 
-2. Alternatively, set it for specific targets:
-   ```cmake
-   if(MSVC)
-     target_compile_options(ca_client PRIVATE /EHsc)
-     target_compile_options(ca_server PRIVATE /EHsc)
-   endif()
+3. Ensure proper header inclusion order in all files that use Windows socket headers:
+   ```cpp
+   #ifndef WIN32_LEAN_AND_MEAN
+   #define WIN32_LEAN_AND_MEAN
+   #endif
+   
+   #include <windows.h>  // If needed
+   #include <winsock2.h>
+   #include <ws2tcpip.h>
    ```
 
-3. If using Visual Studio directly, modify the project properties:
-   - Open Project Properties
-   - Navigate to Configuration Properties > C/C++ > Code Generation
-   - Set "Enable C++ Exceptions" to "Yes (/EHsc)"
-
-#### Temporary Solution for Testing
-The same solution applies for testing environments as this is a core behavior issue. However, for quick testing without modifying CMake files, you can set an environment variable before building:
-```cmd
-set CL=/EHsc
-cmake --build .
-```
-
-### Notes
-- This warning doesn't prevent compilation but could lead to serious runtime issues if exceptions are thrown
-- The warning appears in multiple files, indicating it's a project-wide setting issue
-- Even if you don't explicitly use exceptions in your code, libraries you depend on (like the standard library) might throw exceptions internally
-- The `/EHsc` option is specific to Microsoft Visual C++ (MSVC) compiler
-
-### Reference Documents
-1. [Microsoft Documentation: Compiler Warning C4530](https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4530)
-2. [Microsoft Documentation: /EH (Exception Handling Model)](https://learn.microsoft.com/en-us/cpp/build/reference/eh-exception-handling-model)
-3. [Stack Overflow: C++ exception handler used, but unwind semantics are not enabled](https://stackoverflow.com/questions/44557986/c-exception-handler-used-but-unwind-semantics-are-not-enabled-what-does-it-m)
-4. [CMake Documentation: add_compile_options](https://cmake.org/cmake/help/latest/command/add_compile_options.html)
-5. [C++ Core Guidelines: Error handling](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-errors)
-
-## Issue 2: PowerShell Core Not Found
-
-### Error
-```
-'pwsh.exe' is not recognized as an internal or external command,
-operable program or batch file.
-```
-
-### Description
-This error occurs when a script or command in the build process attempts to execute PowerShell Core (pwsh.exe), but this executable cannot be found in the system PATH or isn't installed on the machine. PowerShell Core (pwsh.exe) is the cross-platform version of PowerShell and is different from the Windows PowerShell (powershell.exe) that comes pre-installed on Windows.
-
-### Root Cause
-The root cause is likely one of the following:
-1. PowerShell Core (pwsh.exe) is not installed on the system
-2. PowerShell Core is installed but not added to the system PATH
-3. A build script, possibly from vcpkg or another tool, is explicitly calling 'pwsh.exe' instead of a more flexible PowerShell detection mechanism
-
-Based on the build output context, this appears to be related to a post-build step, possibly from vcpkg integration, which is trying to run a PowerShell Core script.
-
-### Similar Errors
-- "'powershell.exe' is not recognized as an internal or external command"
-- "'git' is not recognized as an internal or external command"
-- "'cmake' is not recognized as an internal or external command"
-- Other "command not found" errors for executable dependencies
-
-### Approaches for Solving
-
-#### Production Solution
-1. Install PowerShell Core:
-   - Download from [GitHub PowerShell Releases](https://github.com/PowerShell/PowerShell/releases)
-   - Install using the MSI package, which will automatically add it to PATH
-   - Verify by opening a new command prompt and typing `pwsh --version`
-
-2. Modify the build script to be compatible with both PowerShell versions:
-   - Locate the script that's calling pwsh.exe (likely in the vcpkg scripts or CMake-generated files)
-   - Replace the direct call to 'pwsh.exe' with a check that uses available PowerShell:
-   ```batch
-   where pwsh >nul 2>&1 && (pwsh -Command "...") || (powershell -Command "...")
+4. Clean your build directory and rebuild from scratch:
+   ```bash
+   cd build
+   rm -rf *  # Be careful with this command!
+   cmake ..
+   cmake --build .
    ```
 
-3. If using vcpkg, check for and apply any updates that might fix this issue
+Following these steps should resolve the linker errors and allow successful compilation of both the client and server components of the CA Management System.
 
-#### Temporary Solution for Testing
-1. Create a batch file wrapper named 'pwsh.bat' in a directory that's in your PATH:
-   ```batch
-   @echo off
-   powershell.exe %*
-   ```
-   This redirects pwsh.exe calls to the standard Windows PowerShell.
+Remember that when adding new source files to your project in the future, you must also update the CMakeLists.txt file to include them in the build process.
 
-2. Ignore the error if the build completes successfully:
-   - The error message indicates the build continues despite this error
-   - This suggests the PowerShell script might be for auxiliary functionality (like copying files)
-   - For testing purposes, if the application builds and runs correctly, this error can be temporarily ignored
+## Additional Troubleshooting Tips
 
-### Notes
-- This error appears twice in the build output, after both ca_client.exe and ca_server.exe targets are built
-- The error doesn't appear to prevent the build from completing successfully
-- This is likely related to vcpkg's AppLocalFromInstalled target or another post-build step
-- There's a known issue in vcpkg (issue #35270) with this same error message
-
-### Reference Documents
-1. [GitHub Issue: vcpkg #35270 - 'pwsh.exe' is not recognized](https://github.com/microsoft/vcpkg/issues/35270)
-2. [Stack Overflow: vcpkg 'pwsh.exe' is not recognized](https://stackoverflow.com/questions/77950687/vcpkg-pwsh-exe-is-not-recognized-as-an-internal-or-external-command)
-3. [PowerShell Core GitHub Repository](https://github.com/PowerShell/PowerShell)
-4. [PowerShell Documentation: Installing PowerShell on Windows](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows)
-5. [Stack Overflow: Difference between powershell.exe and pwsh.exe](https://stackoverflow.com/questions/51506481/what-is-the-difference-between-powershell-exe-and-pwsh-exe)
-6. [Chocolatey Package: PowerShell Core](https://community.chocolatey.org/packages/powershell-core)
-
-## Additional Notes on Build Output
-
-### Warning C4530 Occurrences
-The warning about C++ exception handling appears across multiple files:
-- client_main.cpp
-- openssl_wrapper.cpp
-- client_console.cpp
-- main.cpp
-- database.cpp
-- auth_system.cpp
-- certificate_authority.cpp
-- server_console.cpp
-
-This confirms it's a project-wide compiler configuration issue rather than a problem with specific code files.
-
-### Build Completion
-Despite the warnings and errors, the build process completes successfully and produces both executable targets:
-- ca_client.exe
-- ca_server.exe
-
-This suggests that the issues, while important to address for code quality and reliability, don't prevent the basic functionality of the application. 
+- If you continue to experience linking issues, check for circular dependencies between components.
+- Make sure that all required libraries (OpenSSL, SQLite) are properly installed and their paths are correctly specified in CMake.
+- For Windows-specific issues, ensure that the appropriate platform toolset and SDK are selected in the Visual Studio project properties.
+- If you encounter runtime errors after resolving the build issues, check for proper initialization/cleanup of WinSock using WSAStartup/WSACleanup.
+- For cross-platform compatibility, consider using conditionally compiled code for platform-specific functionality.

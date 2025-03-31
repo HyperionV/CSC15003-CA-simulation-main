@@ -22,6 +22,10 @@ public:
     String generateCRL(const std::vector<std::pair<String, String>>& revokedCerts,
                       const String& caKeyPEM, const String& caCertPEM);
     
+    // Certificate validation methods
+    bool validateCertificateChain(const std::vector<String>& certChain);
+    bool checkCertificateRevocation(const String& certPEM, const String& crlPEM);
+    
     // Utility functions
     String bioToString(BIO* bio);
     long generateSerialNumber();

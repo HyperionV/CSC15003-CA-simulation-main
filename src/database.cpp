@@ -697,6 +697,39 @@ bool DatabaseManager::updateUserRole(int userID, const String& newRole) {
     return result;
 }
 
+std::vector<DatabaseManager::CertificateEntry> DatabaseManager::getUserCertificates(int userID) {
+    std::vector<CertificateEntry> certificates;
+    
+    if (!db) return certificates;
+    
+    const char* query = 
+        "SELECT certificateID, serialNumber, subjectName, status, validTo "
+        "FROM Certificates "
+        "WHERE ownerID = ? "
+        "ORDER BY validTo DESC;";
+    
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        return certificates;
+    }
+    
+    sqlite3_bind_int(stmt, 1, userID);
+    
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        CertificateEntry cert;
+        cert.certificateID = sqlite3_column_int(stmt, 0);
+        cert.serialNumber = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        cert.subjectName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        cert.status = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        cert.validTo = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+        
+        certificates.push_back(cert);
+    }
+    
+    sqlite3_finalize(stmt);
+    return certificates;
+}
+
 String DatabaseManager::getCertificateData(int certificateID) {
     if (!db) return "";
     
@@ -716,4 +749,28 @@ String DatabaseManager::getCertificateData(int certificateID) {
     
     sqlite3_finalize(stmt);
     return certificateData;
+}
+
+std::vector<std::pair<String, String>> DatabaseManager::getRevokedCertificates() {
+    std::vector<std::pair<String, String>> revokedCerts;
+    
+    if (!db) return revokedCerts;
+    
+    const char* query = 
+        "SELECT serialNumber, reason FROM RevokedCertificates;";
+    
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        return revokedCerts;
+    }
+    
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        String serialNumber = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        String reason = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        
+        revokedCerts.push_back({serialNumber, reason});
+    }
+    
+    sqlite3_finalize(stmt);
+    return revokedCerts;
 } 

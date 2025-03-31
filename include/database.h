@@ -90,6 +90,10 @@ public:
     std::vector<CSREntry> getPendingCSRs();
     std::vector<CertificateEntry> getAllCertificates();
     bool updateUserRole(int userID, const String& newRole);
+    std::vector<CertificateEntry> getUserCertificates(int userID);
+    
+    // Revoked certificates methods
+    std::vector<std::pair<String, String>> getRevokedCertificates();
     
 private:
     sqlite3* db;

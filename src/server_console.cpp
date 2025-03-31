@@ -194,106 +194,48 @@ void ServerConsole::manageUsers() {
 }
 
 void ServerConsole::certificateOperations() {
-    system("cls");
-    std::cout << "=== Certificate Operations ===" << std::endl;
-    
-    bool managingCerts = true;
-    
-    while (managingCerts) {
-        // Get pending CSRs
-        auto csrs = db.getPendingCSRs();
-        
+    while (true) {
         system("cls");
-        std::cout << "=== Certificate Operations ===" << std::endl;
-        std::cout << "\nPending Certificate Signing Requests:\n";
-        std::cout << "------------------------------------\n";
-        std::cout << std::left << std::setw(5) << "ID" << " | " 
-                  << std::setw(20) << "Subject" << " | " 
-                  << "Requested At" << std::endl;
-        std::cout << "------------------------------------\n";
-        
-        for (const auto& csr : csrs) {
-            std::cout << std::left << std::setw(5) << csr.requestID << " | " 
-                      << std::setw(20) << csr.subjectName << " | " 
-                      << csr.requestedAt << std::endl;
-        }
-        
-        std::cout << "\n";
-        std::cout << "1. Approve CSR\n";
-        std::cout << "2. Reject CSR\n";
-        std::cout << "3. View All Certificates\n";
-        std::cout << "4. Revoke Certificate\n";
-        std::cout << "0. Back\n";
+        std::cout << "Certificate Operations" << std::endl;
+        std::cout << "=====================" << std::endl;
+        std::cout << "1. List All Certificates" << std::endl;
+        std::cout << "2. View Certificate Details" << std::endl;
+        std::cout << "3. Approve Certificate Request" << std::endl;
+        std::cout << "4. Revoke Certificate" << std::endl;
+        std::cout << "5. Generate CRL" << std::endl;
+        std::cout << "0. Back" << std::endl;
         
         int choice = getIntInput("Enter your choice: ");
         
         switch (choice) {
             case 0:
-                managingCerts = false;
+                return;
+            case 1:
+                listCertificates();
                 break;
-            case 1: {
-                int requestID = getIntInput("Enter CSR ID to approve: ");
-                int validityDays = getIntInput("Enter validity period in days (default: 365): ");
-                
-                int certID = ca.issueCertificate(requestID, validityDays);
-                if (certID > 0) {
-                    std::cout << "Certificate issued successfully. ID: " << certID << std::endl;
+            case 2:
+                viewCertificateDetails();
+                break;
+            case 3:
+                approveCertificateRequest();
+                break;
+            case 4:
+                revokeCertificate();
+                break;
+            case 5: {
+                std::cout << "Generating Certificate Revocation List (CRL)..." << std::endl;
+                String crlData = ca.generateCRL();
+                if (!crlData.empty()) {
+                    std::cout << "CRL generated successfully." << std::endl;
+                    std::cout << "Saved to: " << CERT_DIR << "ca.crl" << std::endl;
                 } else {
-                    std::cout << "Failed to issue certificate." << std::endl;
-                }
-                waitForEnter();
-                break;
-            }
-            case 2: {
-                int requestID = getIntInput("Enter CSR ID to reject: ");
-                String reason = getInput("Enter rejection reason: ");
-                
-                if (db.updateCSRStatus(requestID, "rejected")) {
-                    std::cout << "CSR rejected successfully." << std::endl;
-                } else {
-                    std::cout << "Failed to reject CSR." << std::endl;
-                }
-                waitForEnter();
-                break;
-            }
-            case 3: {
-                auto certificates = db.getAllCertificates();
-                
-                system("cls");
-                std::cout << "=== All Certificates ===" << std::endl;
-                std::cout << "------------------------------------\n";
-                std::cout << std::left << std::setw(5) << "ID" << " | " 
-                          << std::setw(15) << "Serial" << " | " 
-                          << std::setw(20) << "Subject" << " | " 
-                          << std::setw(10) << "Status" << " | " 
-                          << "Expiry" << std::endl;
-                std::cout << "------------------------------------\n";
-                
-                for (const auto& cert : certificates) {
-                    std::cout << std::left << std::setw(5) << cert.certificateID << " | " 
-                              << std::setw(15) << cert.serialNumber.substr(0, 12) + "..." << " | " 
-                              << std::setw(20) << cert.subjectName << " | " 
-                              << std::setw(10) << cert.status << " | " 
-                              << cert.validTo << std::endl;
-                }
-                
-                waitForEnter();
-                break;
-            }
-            case 4: {
-                int certID = getIntInput("Enter certificate ID to revoke: ");
-                String reason = getInput("Enter revocation reason: ");
-                
-                if (ca.revokeCertificate(certID, reason, "admin")) {
-                    std::cout << "Certificate revoked successfully." << std::endl;
-                } else {
-                    std::cout << "Failed to revoke certificate." << std::endl;
+                    std::cout << "Failed to generate CRL." << std::endl;
                 }
                 waitForEnter();
                 break;
             }
             default:
-                std::cout << "Invalid choice." << std::endl;
+                std::cout << "Invalid choice. Please try again." << std::endl;
                 waitForEnter();
                 break;
         }

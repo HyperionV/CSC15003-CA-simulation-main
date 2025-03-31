@@ -1,3 +1,7 @@
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include "../include/client_console.h"
 #include "../include/socket_comm.h"
 #include "../lib/nlohmann/json.hpp"
@@ -47,42 +51,48 @@ void ClientConsole::displayAuthMenu() {
 }
 
 void ClientConsole::displayCertificateMenu() {
-    system("cls");
-    std::cout << "CA Management System - Client" << std::endl;
-    std::cout << "============================" << std::endl;
-    std::cout << "Logged in as: " << currentUsername << std::endl;
-    std::cout << "\n";
-    std::cout << "1. Request Certificate" << std::endl;
-    std::cout << "2. View My Certificates" << std::endl;
-    std::cout << "3. Revoke Certificate" << std::endl;
-    std::cout << "4. Download Certificate" << std::endl;
-    std::cout << "5. Logout" << std::endl;
-    std::cout << "0. Exit" << std::endl;
-    
-    int choice = getIntInput("Enter your choice: ");
-    
-    switch (choice) {
-        case 0:
-            running = false;
-            break;
-        case 1:
-            requestCertificate();
-            break;
-        case 2:
-            viewCertificates();
-            break;
-        case 3:
-            revokeCertificate();
-            break;
-        case 4:
-            downloadCertificate();
-            break;
-        case 5:
-            logout();
-            break;
-        default:
-            displayMessage("Invalid choice. Please try again.");
-            break;
+    while (true) {
+        system("cls");
+        std::cout << "CA Management System - Client" << std::endl;
+        std::cout << "============================" << std::endl;
+        std::cout << "Logged in as: " << currentUsername << std::endl;
+        std::cout << "\n";
+        std::cout << "1. Request Certificate" << std::endl;
+        std::cout << "2. View My Certificates" << std::endl;
+        std::cout << "3. Revoke Certificate" << std::endl;
+        std::cout << "4. Download Certificate" << std::endl;
+        std::cout << "5. Validate Certificate" << std::endl;
+        std::cout << "6. Logout" << std::endl;
+        std::cout << "0. Exit" << std::endl;
+        
+        int choice = getIntInput("Enter your choice: ");
+        
+        switch (choice) {
+            case 0:
+                running = false;
+                return;
+            case 1:
+                requestCertificate();
+                break;
+            case 2:
+                viewCertificates();
+                break;
+            case 3:
+                revokeCertificate();
+                break;
+            case 4:
+                downloadCertificate();
+                break;
+            case 5:
+                validateCertificate();
+                break;
+            case 6:
+                logout();
+                return;
+            default:
+                displayMessage("Invalid choice. Please try again.");
+                break;
+        }
     }
 }
 
@@ -329,6 +339,49 @@ void ClientConsole::downloadCertificate() {
             displayMessage("Certificate downloaded successfully to " + filename);
         } else {
             displayMessage("Failed to download certificate: " + responseJson["message"].get<String>());
+        }
+    }
+    catch (const std::exception& e) {
+        displayMessage("Error parsing response: " + String(e.what()));
+    }
+}
+
+void ClientConsole::validateCertificate() {
+    system("cls");
+    std::cout << "=== Validate Certificate ===" << std::endl;
+    
+    String filename = getInput("Enter certificate file path: ");
+    
+    // Read certificate file
+    std::ifstream certFile(filename);
+    if (!certFile.is_open()) {
+        displayMessage("Failed to open certificate file.");
+        return;
+    }
+    
+    std::stringstream certStream;
+    certStream << certFile.rdbuf();
+    String certificateData = certStream.str();
+    certFile.close();
+    
+    // Send validation request
+    json payload;
+    payload["certificateData"] = certificateData;
+    
+    String response = sendRequest("validate_certificate", payload);
+    
+    try {
+        json responseJson = json::parse(response);
+        
+        if (responseJson["status"] == "success") {
+            bool valid = responseJson["data"]["valid"];
+            if (valid) {
+                displayMessage("Certificate is valid.");
+            } else {
+                displayMessage("Certificate is invalid or has been revoked.");
+            }
+        } else {
+            displayMessage("Failed to validate certificate: " + responseJson["message"].get<String>());
         }
     }
     catch (const std::exception& e) {

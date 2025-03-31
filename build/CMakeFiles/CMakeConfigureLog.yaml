@@ -24,7 +24,7 @@ events:
       The output was:
       0
       MSBuild version 17.12.12+1cce77968 for .NET Framework
-      Build started 3/31/2025 2:39:28 PM.
+      Build started 3/31/2025 3:56:20 PM.
       
       Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -45,10 +45,6 @@ events:
         CompilerIdC.vcxproj -> E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdC\\CompilerIdC.exe
       AppLocalFromInstalled:
         pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdC\\CompilerIdC.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdC.tlog\\CompilerIdC.write.1u.tlog" "Debug\\vcpkg.applocal.log"
-        'pwsh.exe' is not recognized as an internal or external command,
-        operable program or batch file.
-        The command "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdC\\CompilerIdC.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdC.tlog\\CompilerIdC.write.1u.tlog" "Debug\\vcpkg.applocal.log"" exited with code 9009.
-        "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdC\\CompilerIdC.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdC.tlog\\CompilerIdC.write.1u.tlog" "Debug\\vcpkg.applocal.log"
       PostBuildEvent:
         for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
         :VCEnd
@@ -62,7 +58,7 @@ events:
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:00.83
+      Time Elapsed 00:00:00.89
       
       
       Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -88,7 +84,7 @@ events:
       The output was:
       0
       MSBuild version 17.12.12+1cce77968 for .NET Framework
-      Build started 3/31/2025 2:39:29 PM.
+      Build started 3/31/2025 3:56:21 PM.
       
       Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -109,10 +105,6 @@ events:
         CompilerIdCXX.vcxproj -> E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdCXX\\CompilerIdCXX.exe
       AppLocalFromInstalled:
         pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdCXX\\CompilerIdCXX.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.write.1u.tlog" "Debug\\vcpkg.applocal.log"
-        'pwsh.exe' is not recognized as an internal or external command,
-        operable program or batch file.
-        The command "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdCXX\\CompilerIdCXX.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.write.1u.tlog" "Debug\\vcpkg.applocal.log"" exited with code 9009.
-        "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\4.0.0\\CompilerIdCXX\\CompilerIdCXX.exe" "C:\\vcpkg\\installed\\x64-windows\\bin" "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.write.1u.tlog" "Debug\\vcpkg.applocal.log"
       PostBuildEvent:
         for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
         :VCEnd
@@ -126,7 +118,7 @@ events:
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:00.83
+      Time Elapsed 00:00:00.88
       
       
       Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -145,8 +137,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-2elc3z"
-      binary: "E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-2elc3z"
+      source: "E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-wfr9fw"
+      binary: "E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-wfr9fw"
     cmakeVariables:
       CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
       CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
@@ -155,49 +147,45 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-2elc3z'
+        Change Dir: 'E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-wfr9fw'
         
-        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_2e6ea.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_bceda.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.12.12+1cce77968 for .NET Framework
-        Build started 3/31/2025 2:39:30 PM.
+        Build started 3/31/2025 3:56:23 PM.
         
-        Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2elc3z\\cmTC_2e6ea.vcxproj" on node 1 (default targets).
+        Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wfr9fw\\cmTC_bceda.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_2e6ea.dir\\Debug\\".
+          Creating directory "cmTC_bceda.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2elc3z\\Debug\\".
-          Creating directory "cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.tlog\\".
+          Creating directory "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wfr9fw\\Debug\\".
+          Creating directory "cmTC_bceda.dir\\Debug\\cmTC_bceda.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.tlog\\unsuccessfulbuild".
+          Creating "cmTC_bceda.dir\\Debug\\cmTC_bceda.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_bceda.dir\\Debug\\cmTC_bceda.tlog\\unsuccessfulbuild".
         VcpkgTripletSelection:
           Using triplet "x64-windows" from "C:\\vcpkg\\installed\\x64-windows\\"
           Using normalized configuration "Debug"
         ClCompile:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_2e6ea.dir\\Debug\\\\" /Fd"cmTC_2e6ea.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCCompilerABI.c"
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_bceda.dir\\Debug\\\\" /Fd"cmTC_bceda.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCCompilerABI.c"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.42.34435 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_2e6ea.dir\\Debug\\\\" /Fd"cmTC_2e6ea.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCCompilerABI.c"
+          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_bceda.dir\\Debug\\\\" /Fd"cmTC_bceda.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCCompilerABI.c"
           CMakeCCompilerABI.c
         Link:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2elc3z\\Debug\\cmTC_2e6ea.exe" /INCREMENTAL /ILK:"cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.ilk" /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-2elc3z/Debug/cmTC_2e6ea.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-2elc3z/Debug/cmTC_2e6ea.lib" /MACHINE:X64  /machine:x64 cmTC_2e6ea.dir\\Debug\\CMakeCCompilerABI.obj
-          cmTC_2e6ea.vcxproj -> E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2elc3z\\Debug\\cmTC_2e6ea.exe
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wfr9fw\\Debug\\cmTC_bceda.exe" /INCREMENTAL /ILK:"cmTC_bceda.dir\\Debug\\cmTC_bceda.ilk" /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-wfr9fw/Debug/cmTC_bceda.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-wfr9fw/Debug/cmTC_bceda.lib" /MACHINE:X64  /machine:x64 cmTC_bceda.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_bceda.vcxproj -> E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wfr9fw\\Debug\\cmTC_bceda.exe
         AppLocalFromInstalled:
-          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2elc3z\\Debug\\cmTC_2e6ea.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.tlog\\cmTC_2e6ea.write.1u.tlog" "cmTC_2e6ea.dir\\Debug\\vcpkg.applocal.log"
-          'pwsh.exe' is not recognized as an internal or external command,
-          operable program or batch file.
-          The command "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2elc3z\\Debug\\cmTC_2e6ea.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.tlog\\cmTC_2e6ea.write.1u.tlog" "cmTC_2e6ea.dir\\Debug\\vcpkg.applocal.log"" exited with code 9009.
-          "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2elc3z\\Debug\\cmTC_2e6ea.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.tlog\\cmTC_2e6ea.write.1u.tlog" "cmTC_2e6ea.dir\\Debug\\vcpkg.applocal.log"
+          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wfr9fw\\Debug\\cmTC_bceda.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_bceda.dir\\Debug\\cmTC_bceda.tlog\\cmTC_bceda.write.1u.tlog" "cmTC_bceda.dir\\Debug\\vcpkg.applocal.log"
         FinalizeBuildStatus:
-          Deleting file "cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.tlog\\unsuccessfulbuild".
-          Touching "cmTC_2e6ea.dir\\Debug\\cmTC_2e6ea.tlog\\cmTC_2e6ea.lastbuildstate".
-        Done Building Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2elc3z\\cmTC_2e6ea.vcxproj" (default targets).
+          Deleting file "cmTC_bceda.dir\\Debug\\cmTC_bceda.tlog\\unsuccessfulbuild".
+          Touching "cmTC_bceda.dir\\Debug\\cmTC_bceda.tlog\\cmTC_bceda.lastbuildstate".
+        Done Building Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wfr9fw\\cmTC_bceda.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:00.81
+        Time Elapsed 00:00:00.88
         
       exitCode: 0
   -
@@ -237,8 +225,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-yfp9gy"
-      binary: "E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-yfp9gy"
+      source: "E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-8ybcyh"
+      binary: "E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-8ybcyh"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
@@ -248,49 +236,45 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-yfp9gy'
+        Change Dir: 'E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-8ybcyh'
         
-        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_2d3ef.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_b729b.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.12.12+1cce77968 for .NET Framework
-        Build started 3/31/2025 2:39:31 PM.
+        Build started 3/31/2025 3:56:24 PM.
         
-        Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yfp9gy\\cmTC_2d3ef.vcxproj" on node 1 (default targets).
+        Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8ybcyh\\cmTC_b729b.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_2d3ef.dir\\Debug\\".
+          Creating directory "cmTC_b729b.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yfp9gy\\Debug\\".
-          Creating directory "cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.tlog\\".
+          Creating directory "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8ybcyh\\Debug\\".
+          Creating directory "cmTC_b729b.dir\\Debug\\cmTC_b729b.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.tlog\\unsuccessfulbuild".
+          Creating "cmTC_b729b.dir\\Debug\\cmTC_b729b.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_b729b.dir\\Debug\\cmTC_b729b.tlog\\unsuccessfulbuild".
         VcpkgTripletSelection:
           Using triplet "x64-windows" from "C:\\vcpkg\\installed\\x64-windows\\"
           Using normalized configuration "Debug"
         ClCompile:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_2d3ef.dir\\Debug\\\\" /Fd"cmTC_2d3ef.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_b729b.dir\\Debug\\\\" /Fd"cmTC_b729b.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.42.34435 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_2d3ef.dir\\Debug\\\\" /Fd"cmTC_2d3ef.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
+          cl /c /I"C:\\vcpkg\\installed\\x64-windows\\include" /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_b729b.dir\\Debug\\\\" /Fd"cmTC_b729b.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
           CMakeCXXCompilerABI.cpp
         Link:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yfp9gy\\Debug\\cmTC_2d3ef.exe" /INCREMENTAL /ILK:"cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.ilk" /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-yfp9gy/Debug/cmTC_2d3ef.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-yfp9gy/Debug/cmTC_2d3ef.lib" /MACHINE:X64  /machine:x64 cmTC_2d3ef.dir\\Debug\\CMakeCXXCompilerABI.obj
-          cmTC_2d3ef.vcxproj -> E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yfp9gy\\Debug\\cmTC_2d3ef.exe
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8ybcyh\\Debug\\cmTC_b729b.exe" /INCREMENTAL /ILK:"cmTC_b729b.dir\\Debug\\cmTC_b729b.ilk" /NOLOGO /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-8ybcyh/Debug/cmTC_b729b.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:/HCMUS/a-crypto/project-fullscale/build/CMakeFiles/CMakeScratch/TryCompile-8ybcyh/Debug/cmTC_b729b.lib" /MACHINE:X64  /machine:x64 cmTC_b729b.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_b729b.vcxproj -> E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8ybcyh\\Debug\\cmTC_b729b.exe
         AppLocalFromInstalled:
-          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yfp9gy\\Debug\\cmTC_2d3ef.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.tlog\\cmTC_2d3ef.write.1u.tlog" "cmTC_2d3ef.dir\\Debug\\vcpkg.applocal.log"
-          'pwsh.exe' is not recognized as an internal or external command,
-          operable program or batch file.
-          The command "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yfp9gy\\Debug\\cmTC_2d3ef.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.tlog\\cmTC_2d3ef.write.1u.tlog" "cmTC_2d3ef.dir\\Debug\\vcpkg.applocal.log"" exited with code 9009.
-          "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yfp9gy\\Debug\\cmTC_2d3ef.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.tlog\\cmTC_2d3ef.write.1u.tlog" "cmTC_2d3ef.dir\\Debug\\vcpkg.applocal.log"
+          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8ybcyh\\Debug\\cmTC_b729b.exe" "C:\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_b729b.dir\\Debug\\cmTC_b729b.tlog\\cmTC_b729b.write.1u.tlog" "cmTC_b729b.dir\\Debug\\vcpkg.applocal.log"
         FinalizeBuildStatus:
-          Deleting file "cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.tlog\\unsuccessfulbuild".
-          Touching "cmTC_2d3ef.dir\\Debug\\cmTC_2d3ef.tlog\\cmTC_2d3ef.lastbuildstate".
-        Done Building Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-yfp9gy\\cmTC_2d3ef.vcxproj" (default targets).
+          Deleting file "cmTC_b729b.dir\\Debug\\cmTC_b729b.tlog\\unsuccessfulbuild".
+          Touching "cmTC_b729b.dir\\Debug\\cmTC_b729b.tlog\\cmTC_b729b.lastbuildstate".
+        Done Building Project "E:\\HCMUS\\a-crypto\\project-fullscale\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8ybcyh\\cmTC_b729b.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:00.84
+        Time Elapsed 00:00:00.95
         
       exitCode: 0
   -

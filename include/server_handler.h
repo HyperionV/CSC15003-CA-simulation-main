@@ -1,4 +1,8 @@
 #pragma once
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include "common.h"
 #include "socket_comm.h"
 #include "auth_system.h"
@@ -35,4 +39,5 @@ private:
     json handleGetCertificates(const json& payload, const String& token);
     json handleRevokeCertificate(const json& payload, const String& token);
     json handleDownloadCertificate(const json& payload, const String& token);
+    json handleValidateCertificate(const json& payload, const String& token);
 }; 

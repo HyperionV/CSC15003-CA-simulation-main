@@ -364,17 +364,23 @@ bool CertificateAuthority::revokeCertificate(int certificateID, const String& re
 }
 
 bool CertificateAuthority::validateCertificate(const String& certData) {
+    // Verify certificate against CA certificate
     return ssl.verifyCertificate(certData, caCertificate);
 }
 
 String CertificateAuthority::generateCRL() {
-    // Get all revoked certificates from database
-    // This would require an additional method in DatabaseManager to retrieve all revoked certificates
-    // For simplicity, we'll assume it returns a vector of pairs (serialNumber, reason)
-    std::vector<std::pair<String, String>> revokedCerts;
+    // Get list of revoked certificates
+    auto revokedCerts = db.getRevokedCertificates();
     
-    // Generate CRL using OpenSSLWrapper
-    return ssl.generateCRL(revokedCerts, caPrivateKey, caCertificate);
+    // Generate CRL
+    String crlPEM = ssl.generateCRL(revokedCerts, caPrivateKey, caCertificate);
+    
+    // Save CRL to file
+    std::ofstream crlFile(CERT_DIR + "ca.crl");
+    crlFile << crlPEM;
+    crlFile.close();
+    
+    return crlPEM;
 }
 
 int CertificateAuthority::getPendingCSRCount() {

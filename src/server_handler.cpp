@@ -1,3 +1,7 @@
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include "../include/server_handler.h"
 
 ServerHandler::ServerHandler(AuthenticationSystem& authSystem, 
@@ -109,6 +113,9 @@ String ServerHandler::processRequest(const String& request) {
         }
         else if (action == "download_certificate") {
             responseJson = handleDownloadCertificate(payload, token);
+        }
+        else if (action == "validate_certificate") {
+            responseJson = handleValidateCertificate(payload, token);
         }
         else {
             responseJson["status"] = "error";
@@ -291,6 +298,31 @@ json ServerHandler::handleDownloadCertificate(const json& payload, const String&
     } else {
         response["status"] = "error";
         response["message"] = "Failed to download certificate";
+    }
+    
+    return response;
+}
+
+json ServerHandler::handleValidateCertificate(const json& payload, const String& token) {
+    json response;
+    
+    // Validate session
+    if (!auth.validateSession(token)) {
+        response["status"] = "error";
+        response["message"] = "Authentication required";
+        return response;
+    }
+    
+    String certificateData = payload["certificateData"];
+    
+    if (ca.validateCertificate(certificateData)) {
+        response["status"] = "success";
+        response["data"]["valid"] = true;
+        response["message"] = "Certificate is valid";
+    } else {
+        response["status"] = "success";
+        response["data"]["valid"] = false;
+        response["message"] = "Certificate is invalid";
     }
     
     return response;
