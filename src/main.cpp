@@ -4,6 +4,13 @@
 #include "../include/openssl_wrapper.h"
 #include "../include/certificate_authority.h"
 #include "../include/server_console.h"
+#include "../include/server_handler.h"
+#include <thread>
+
+// Function to run the server handler in a separate thread
+void runServerHandler(ServerHandler& handler) {
+    handler.start(8080);
+}
 
 int main() {
     // Initialize OpenSSL
@@ -32,9 +39,23 @@ int main() {
     
     std::cout << "CA Management System initialized successfully." << std::endl;
     
+    // Create server handler
+    ServerHandler serverHandler(authSystem, ca, dbManager);
+    
+    // Start server handler in a separate thread
+    std::thread serverThread(runServerHandler, std::ref(serverHandler));
+    
     // Start server console
     ServerConsole console(authSystem, ca, dbManager);
     console.run();
+    
+    // Stop server handler
+    serverHandler.stop();
+    
+    // Wait for server thread to finish
+    if (serverThread.joinable()) {
+        serverThread.join();
+    }
     
     // Cleanup OpenSSL
     EVP_cleanup();

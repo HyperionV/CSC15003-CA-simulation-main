@@ -29,6 +29,7 @@ public:
                           const String& certificateData);
     bool revokeCertificate(int certificateID, const String& serialNumber, 
                            const String& reason, int revokedBy);
+    String getCertificateData(int certificateID);
     
     // CSR information structures
     struct CSRInfo {

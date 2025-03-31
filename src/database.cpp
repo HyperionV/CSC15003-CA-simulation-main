@@ -695,4 +695,25 @@ bool DatabaseManager::updateUserRole(int userID, const String& newRole) {
     sqlite3_finalize(stmt);
     
     return result;
+}
+
+String DatabaseManager::getCertificateData(int certificateID) {
+    if (!db) return "";
+    
+    const char* query = "SELECT certificateData FROM Certificates WHERE certificateID = ?;";
+    sqlite3_stmt* stmt;
+    
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        return "";
+    }
+    
+    sqlite3_bind_int(stmt, 1, certificateID);
+    
+    String certificateData = "";
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        certificateData = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    }
+    
+    sqlite3_finalize(stmt);
+    return certificateData;
 } 

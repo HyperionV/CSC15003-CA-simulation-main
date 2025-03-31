@@ -1,10 +1,13 @@
 #include "../include/client_console.h"
+#include "../include/socket_comm.h"
 #include "../lib/nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
 ClientConsole::ClientConsole(OpenSSLWrapper& sslWrapper)
     : ssl(sslWrapper), running(true), loggedIn(false) {
+    // Initialize socket
+    SocketManager::initialize();
 }
 
 void ClientConsole::run() {
@@ -334,10 +337,6 @@ void ClientConsole::downloadCertificate() {
 }
 
 String ClientConsole::sendRequest(const String& action, const std::map<String, String>& payload) {
-    // In a real client-server implementation, this would send an HTTP request
-    // or use a socket connection to communicate with the server.
-    // For this simplified implementation, we'll simulate the server response.
-    
     // Build request JSON
     json request;
     request["action"] = action;
@@ -357,9 +356,30 @@ String ClientConsole::sendRequest(const String& action, const std::map<String, S
     // Convert to string
     String requestStr = request.dump();
     
-    // Simulate server processing
-    // In a real implementation, this would be replaced with actual server communication
-    return simulateServerResponse(requestStr);
+    // Connect to server
+    ClientSocket socket;
+    if (!socket.connect("localhost", 8080)) {
+        json errorResponse;
+        errorResponse["status"] = "error";
+        errorResponse["message"] = "Failed to connect to server";
+        return errorResponse.dump();
+    }
+    
+    // Send request
+    if (!socket.send(requestStr)) {
+        json errorResponse;
+        errorResponse["status"] = "error";
+        errorResponse["message"] = "Failed to send request to server";
+        return errorResponse.dump();
+    }
+    
+    // Receive response
+    String response = socket.receive();
+    
+    // Close connection
+    socket.close();
+    
+    return response;
 }
 
 String ClientConsole::simulateServerResponse(const String& request) {
