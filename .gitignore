@@ -1,4 +1,5 @@
 build
 .cursorrules
 
-/data
+data
+build

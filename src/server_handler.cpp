@@ -63,29 +63,10 @@ void ServerHandler::handleClient(SOCKET clientSocket) {
         uint32_t length = 0;
         int bytesReceived = recv(clientSocket, (char*)&length, sizeof(length), 0);
         
-        if (bytesReceived <= 0) {
-            if (bytesReceived == 0) {
-                // Connection closed
-                std::cout << "Client disconnected" << std::endl;
-            } else {
-                std::cerr << "Receive length failed: " << WSAGetLastError() << std::endl;
-            }
-            break;
-        }
-        
         // Now receive the exact message length
         std::vector<char> buffer(length + 1, 0);
         bytesReceived = recv(clientSocket, buffer.data(), length, 0);
         
-        if (bytesReceived <= 0) {
-            if (bytesReceived == 0) {
-                // Connection closed
-                std::cout << "Client disconnected" << std::endl;
-            } else {
-                std::cerr << "Receive message failed: " << WSAGetLastError() << std::endl;
-            }
-            break;
-        }
         
         // Null-terminate the received data and process it
         buffer[bytesReceived] = '\0';

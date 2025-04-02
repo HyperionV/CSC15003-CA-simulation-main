@@ -1,6 +1,0 @@
-{
-    "caCertPath": "./data/certs/ca_cert.pem",
-    "caKeyPath": "./data/keys/ca_private.key",
-    "caSubject": "CN=CA Management System,O=University Project,C=US",
-    "defaultValidityDays": 365
-}
