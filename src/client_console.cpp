@@ -330,8 +330,13 @@ void ClientConsole::downloadCertificate() {
         
         if (responseJson["status"] == "success") {
             String certificateData = responseJson["data"]["certificateData"];
-            String filename = "certificate_" + std::to_string(certID) + ".pem";
             
+            // Create the Certs directory if it doesn't exist
+            const String certsDir = "Certs";
+            std::filesystem::create_directories(certsDir);
+            
+            // Save the certificate to the Certs folder
+            String filename = certsDir + "/certificate_" + std::to_string(certID) + ".pem";
             std::ofstream certFile(filename);
             certFile << certificateData;
             certFile.close();
@@ -350,12 +355,56 @@ void ClientConsole::validateCertificate() {
     system("cls");
     std::cout << "=== Validate Certificate ===" << std::endl;
     
-    String filename = getInput("Enter certificate file path: ");
+    // Create the Certs directory if it doesn't exist
+    const String certsDir = "Certs";
+    std::filesystem::create_directories(certsDir);
+    
+    // Get list of certificate files in the Certs directory
+    std::vector<String> certFiles;
+    try {
+        for (const auto& entry : std::filesystem::directory_iterator(certsDir)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".pem") {
+                certFiles.push_back(entry.path().string());
+            }
+        }
+    } catch (const std::exception& e) {
+        displayMessage("Error reading certificate directory: " + String(e.what()));
+        return;
+    }
+    
+    // Check if any certificate files were found
+    if (certFiles.empty()) {
+        displayMessage("No certificate files found in the Certs folder. Please download certificates first.");
+        return;
+    }
+    
+    // Display the list of certificate files with indices
+    std::cout << "Available Certificate Files:" << std::endl;
+    std::cout << "----------------------------" << std::endl;
+    for (size_t i = 0; i < certFiles.size(); i++) {
+        // Extract just the filename for display
+        String displayName = std::filesystem::path(certFiles[i]).filename().string();
+        std::cout << i + 1 << ". " << displayName << std::endl;
+    }
+    std::cout << "----------------------------" << std::endl;
+    std::cout << std::endl;
+    
+    // Ask user to select a certificate file by index
+    int selection = getIntInput("Enter the number of the certificate to validate (0 to cancel): ");
+    if (selection <= 0 || selection > static_cast<int>(certFiles.size())) {
+        if (selection != 0) {
+            displayMessage("Invalid selection.");
+        }
+        return;
+    }
+    
+    // Get the selected certificate file
+    String filename = certFiles[selection - 1];
     
     // Read certificate file
     std::ifstream certFile(filename);
     if (!certFile.is_open()) {
-        displayMessage("Failed to open certificate file.");
+        displayMessage("Failed to open certificate file: " + filename);
         return;
     }
     
@@ -363,6 +412,10 @@ void ClientConsole::validateCertificate() {
     certStream << certFile.rdbuf();
     String certificateData = certStream.str();
     certFile.close();
+    
+    // Display certificate information
+    std::cout << "\nValidating certificate: " << std::filesystem::path(filename).filename().string() << std::endl;
+    std::cout << "----------------------------" << std::endl;
     
     // Send validation request
     json payload;
@@ -375,11 +428,24 @@ void ClientConsole::validateCertificate() {
         
         if (responseJson["status"] == "success") {
             bool valid = responseJson["data"]["valid"];
+            
+            std::cout << "Validation result: ";
             if (valid) {
-                displayMessage("Certificate is valid.");
+                std::cout << "VALID" << std::endl;
+                std::cout << "The certificate is valid and issued by a trusted CA." << std::endl;
+                std::cout << "It has not been revoked and is within its validity period." << std::endl;
             } else {
-                displayMessage("Certificate is invalid or has been revoked.");
+                std::cout << "INVALID" << std::endl;
+                std::cout << "The certificate is invalid or has been revoked." << std::endl;
+                
+                // If there's an error message, display it
+                if (responseJson["data"].contains("error")) {
+                    std::cout << "Error: " << responseJson["data"]["error"].get<String>() << std::endl;
+                }
             }
+            
+            std::cout << "----------------------------" << std::endl;
+            waitForEnter();
         } else {
             displayMessage("Failed to validate certificate: " + responseJson["message"].get<String>());
         }

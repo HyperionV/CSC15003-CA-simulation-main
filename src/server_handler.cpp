@@ -332,13 +332,37 @@ json ServerHandler::handleValidateCertificate(const json& payload, const String&
     
     String certificateData = payload["certificateData"];
     
-    if (ca.validateCertificate(certificateData)) {
+    // First, try to parse the certificate to check its basic format
+    BIO* certBio = BIO_new_mem_buf(certificateData.c_str(), -1);
+    X509* cert = PEM_read_bio_X509(certBio, nullptr, nullptr, nullptr);
+    BIO_free(certBio);
+    
+    if (!cert) {
+        response["status"] = "success";
+        response["data"]["valid"] = false;
+        response["data"]["error"] = "Invalid certificate format";
+        response["message"] = "Certificate validation failed";
+        return response;
+    }
+    
+    // Certificate is valid format, now check its validity against CA
+    bool valid = ca.validateCertificate(certificateData);
+    
+    // Clean up the X509 object
+    X509_free(cert);
+    
+    if (valid) {
         response["status"] = "success";
         response["data"]["valid"] = true;
         response["message"] = "Certificate is valid";
     } else {
         response["status"] = "success";
         response["data"]["valid"] = false;
+        
+        // Get specific error detail from certificate authority
+        // For now, we'll provide a generic message, but in a real implementation
+        // the CA could return specific error details (expiration, revocation, etc.)
+        response["data"]["error"] = "The certificate is not trusted, has expired, or has been revoked";
         response["message"] = "Certificate is invalid";
     }
     

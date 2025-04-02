@@ -196,6 +196,7 @@ bool OpenSSLWrapper::verifyCertificate(const String& certPEM, const String& caCe
     BIO_free(certBio);
     
     if (!cert) {
+        std::cerr << "Failed to parse certificate" << std::endl;
         return false;
     }
     
@@ -205,7 +206,35 @@ bool OpenSSLWrapper::verifyCertificate(const String& certPEM, const String& caCe
     BIO_free(caCertBio);
     
     if (!caCert) {
+        std::cerr << "Failed to parse CA certificate" << std::endl;
         X509_free(cert);
+        return false;
+    }
+    
+    // Check certificate expiration dates
+    time_t currentTime = time(nullptr);
+    const ASN1_TIME* notBefore = X509_get_notBefore(cert);
+    const ASN1_TIME* notAfter = X509_get_notAfter(cert);
+    
+    bool validTime = true;
+    
+    // Convert ASN1_TIME to time_t and compare
+    int pday = 0, psec = 0;
+    if (!ASN1_TIME_diff(&pday, &psec, NULL, notBefore) || (pday < 0 || psec < 0)) {
+        std::cerr << "Certificate is not yet valid" << std::endl;
+        validTime = false;
+    }
+    
+    pday = 0;
+    psec = 0;
+    if (!ASN1_TIME_diff(&pday, &psec, NULL, notAfter) || (pday > 0 || psec > 0)) {
+        std::cerr << "Certificate has expired" << std::endl;
+        validTime = false;
+    }
+    
+    if (!validTime) {
+        X509_free(cert);
+        X509_free(caCert);
         return false;
     }
     
@@ -213,12 +242,22 @@ bool OpenSSLWrapper::verifyCertificate(const String& certPEM, const String& caCe
     X509_STORE* store = X509_STORE_new();
     X509_STORE_add_cert(store, caCert);
     
+    // Set verification flags to check all certificate attributes
+    X509_STORE_set_flags(store, X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CHECK_SS_SIGNATURE);
+    
     // Create verification context
     X509_STORE_CTX* ctx = X509_STORE_CTX_new();
     X509_STORE_CTX_init(ctx, store, cert, nullptr);
     
     // Verify certificate
     int result = X509_verify_cert(ctx);
+    
+    // If verification failed, get the error code and log it
+    if (result <= 0) {
+        int error = X509_STORE_CTX_get_error(ctx);
+        std::cerr << "Certificate verification failed: " 
+                  << X509_verify_cert_error_string(error) << std::endl;
+    }
     
     // Cleanup
     X509_STORE_CTX_free(ctx);

@@ -364,8 +364,47 @@ bool CertificateAuthority::revokeCertificate(int certificateID, const String& re
 }
 
 bool CertificateAuthority::validateCertificate(const String& certData) {
-    // Verify certificate against CA certificate
-    return ssl.verifyCertificate(certData, caCertificate);
+    // First, verify certificate against CA certificate
+    bool valid = ssl.verifyCertificate(certData, caCertificate);
+    
+    if (!valid) {
+        return false;
+    }
+    
+    // If certificate is signed by CA, check if it's been revoked
+    try {
+        // Parse certificate to extract serial number
+        BIO* certBio = BIO_new_mem_buf(certData.c_str(), -1);
+        X509* cert = PEM_read_bio_X509(certBio, nullptr, nullptr, nullptr);
+        BIO_free(certBio);
+        
+        if (!cert) {
+            return false;
+        }
+        
+        // Get serial number as string
+        ASN1_INTEGER* serialASN1 = X509_get_serialNumber(cert);
+        BIGNUM* bn = ASN1_INTEGER_to_BN(serialASN1, nullptr);
+        char* serialStr = BN_bn2hex(bn);
+        String serialNumber = serialStr;
+        OPENSSL_free(serialStr);
+        BN_free(bn);
+        X509_free(cert);
+        
+        // Check if serial number exists in revoked certificates
+        auto revokedCerts = db.getRevokedCertificates();
+        for (const auto& revokedCert : revokedCerts) {
+            if (revokedCert.first == serialNumber) {
+                return false; // Certificate has been revoked
+            }
+        }
+        
+        return true; // Certificate is valid and not revoked
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error validating certificate: " << e.what() << std::endl;
+        return false;
+    }
 }
 
 String CertificateAuthority::generateCRL() {

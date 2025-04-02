@@ -289,7 +289,48 @@ void ServerConsole::viewCertificateDetails() {
 }
 
 void ServerConsole::approveCertificateRequest() {
-    int requestID = getIntInput("Enter CSR ID to approve: ");
+    system("cls");
+    std::cout << "=== Approve Certificate Request ===" << std::endl;
+    
+    // Get and display all pending certificate requests
+    auto pendingCSRs = db.getPendingCSRs();
+    
+    if (pendingCSRs.empty()) {
+        std::cout << "No pending certificate requests found." << std::endl;
+        waitForEnter();
+        return;
+    }
+    
+    std::cout << "Pending Certificate Requests:" << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
+    std::cout << "| ID | Requester | Request Date |" << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
+    
+    for (const auto& csr : pendingCSRs) {
+        std::cout << "| " << std::setw(2) << csr.requestID 
+                  << " | " << std::setw(9) << csr.subjectName 
+                  << " | " << std::setw(12) << csr.requestedAt << " |" << std::endl;
+    }
+    std::cout << "--------------------------------------------------" << std::endl;
+    std::cout << std::endl;
+    
+    int requestID = getIntInput("Enter CSR ID from the list to approve: ");
+    
+    // Validate the entered ID exists in the pending CSRs list
+    bool validID = false;
+    for (const auto& csr : pendingCSRs) {
+        if (csr.requestID == requestID) {
+            validID = true;
+            break;
+        }
+    }
+    
+    if (!validID) {
+        std::cout << "Invalid CSR ID. Please select an ID from the list." << std::endl;
+        waitForEnter();
+        return;
+    }
+    
     int validityDays = getIntInput("Enter validity period in days (default: 365): ");
     
     int certID = ca.issueCertificate(requestID, validityDays);
