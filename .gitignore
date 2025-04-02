@@ -4,3 +4,10 @@ build
 data
 build
 Certs
+*.keys
+*.pem
+*.p12
+*.csr
+*.crt
+*.crl
+*.der
