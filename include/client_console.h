@@ -1,45 +1,48 @@
 #pragma once
 #include "common.h"
+#include "socket_comm.h"
 #include "openssl_wrapper.h"
 
 class ClientConsole {
 public:
+    ClientConsole();
     ClientConsole(OpenSSLWrapper& sslWrapper);
     
     void run();
     
 private:
-    OpenSSLWrapper& ssl;
-    bool running;
+    // Session state
     bool loggedIn;
+    bool running;
     String sessionToken;
     String currentUsername;
+    OpenSSLWrapper ssl;
     
-    // Server communication
-    bool connectToServer();
-    String sendRequest(const String& action, const std::map<String, String>& payload);
-    String simulateServerResponse(const String& request);
-    
-    // Menu functions
-    void displayMainMenu();
+    // UI methods
+    void showMainMenu();
+    void handleMainMenuChoice(int choice);
+    void displayMessage(const String& message);
     void displayAuthMenu();
     void displayCertificateMenu();
     
-    // Authentication functions
-    bool login();
+    // Menu actions
     bool registerUser();
+    bool login();
     void logout();
-    
-    // Certificate functions
     void requestCertificate();
     void viewCertificates();
-    void revokeCertificate();
     void downloadCertificate();
+    void revokeCertificate();
     void validateCertificate();
     
-    // Helper functions
+    // Helper methods
     String getInput(const String& prompt);
     int getIntInput(const String& prompt);
+    String maskInput(const String& prompt);
     void waitForEnter();
-    void displayMessage(const String& message);
+    String sendRequest(const String& action, const std::map<String, String>& payload);
+    String simulateServerResponse(const String& request);
+    
+    // PKCS#12 helper methods
+    String findMatchingPrivateKey(const String& certificateData, const String& subjectName = "");
 }; 

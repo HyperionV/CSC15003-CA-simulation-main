@@ -320,6 +320,18 @@ void ClientConsole::downloadCertificate() {
         return;
     }
     
+    // Ask for format choice
+    std::cout << "\nChoose format:" << std::endl;
+    std::cout << "1. PEM (certificate only)" << std::endl;
+    std::cout << "2. PKCS#12 (certificate and private key bundled, password protected)" << std::endl;
+    
+    int formatChoice = getIntInput("Enter your choice: ");
+    if (formatChoice != 1 && formatChoice != 2) {
+        displayMessage("Invalid selection. Downloading as PEM format.");
+        formatChoice = 1;
+    }
+    
+    // Request certificate from server
     std::map<String, String> payload;
     payload["certificateID"] = std::to_string(certID);
     
@@ -330,18 +342,66 @@ void ClientConsole::downloadCertificate() {
         
         if (responseJson["status"] == "success") {
             String certificateData = responseJson["data"]["certificateData"];
+            String subjectName = responseJson["data"]["subjectName"];
             
             // Create the Certs directory if it doesn't exist
             const String certsDir = "Certs";
             std::filesystem::create_directories(certsDir);
             
-            // Save the certificate to the Certs folder
-            String filename = certsDir + "/certificate_" + std::to_string(certID) + ".pem";
-            std::ofstream certFile(filename);
-            certFile << certificateData;
-            certFile.close();
-            
-            displayMessage("Certificate downloaded successfully to " + filename);
+            if (formatChoice == 1) {
+                // Save as PEM format
+                String filename = certsDir + "/certificate_" + std::to_string(certID) + ".pem";
+                std::ofstream certFile(filename);
+                certFile << certificateData;
+                certFile.close();
+                
+                displayMessage("Certificate downloaded successfully to " + filename);
+            }
+            else {
+                // PKCS#12 format - need private key and password
+                // Find the matching private key
+                String privateKey = findMatchingPrivateKey(certificateData, subjectName);
+                if (privateKey.empty()) {
+                    displayMessage("Failed to find matching private key. PKCS#12 format requires a private key.");
+                    return;
+                }
+                
+                // Get a password for protecting the PKCS#12 file
+                String password = maskInput("Enter password to protect the PKCS#12 file: ");
+                if (password.empty()) {
+                    displayMessage("Password cannot be empty for PKCS#12 format.");
+                    return;
+                }
+                
+                // Create friendly name from subject or certificate ID
+                String friendlyName = "Certificate_" + std::to_string(certID);
+                if (!subjectName.empty()) {
+                    // Try to extract CN if available
+                    size_t cnPos = subjectName.find("CN=");
+                    if (cnPos != String::npos) {
+                        cnPos += 3;
+                        size_t cnEnd = subjectName.find(',', cnPos);
+                        friendlyName = (cnEnd != String::npos) ? 
+                            subjectName.substr(cnPos, cnEnd - cnPos) : subjectName.substr(cnPos);
+                    }
+                }
+                
+                // Create PKCS#12 file
+                String p12Data = ssl.createPKCS12(privateKey, certificateData, password, friendlyName);
+                
+                if (p12Data.empty()) {
+                    displayMessage("Failed to create PKCS#12 file.");
+                    return;
+                }
+                
+                // Save PKCS#12 file
+                String filename = certsDir + "/certificate_" + std::to_string(certID) + ".p12";
+                std::ofstream p12File(filename, std::ios::binary);
+                p12File.write(p12Data.data(), p12Data.size());
+                p12File.close();
+                
+                displayMessage("Certificate and private key saved in PKCS#12 format to " + filename);
+            }
         } else {
             displayMessage("Failed to download certificate: " + responseJson["message"].get<String>());
         }
@@ -625,4 +685,23 @@ void ClientConsole::waitForEnter() {
 void ClientConsole::displayMessage(const String& message) {
     std::cout << "\n" << message << std::endl;
     waitForEnter();
+}
+
+// Find a private key that matches the given certificate
+String ClientConsole::findMatchingPrivateKey(const String& certificateData, const String& subjectName) {
+    // Use the OpenSSLWrapper utility for finding matching private keys
+    String privateKey = ssl.findMatchingPrivateKey(
+        certificateData,   // Certificate PEM data
+        ".",              // Directory to search (current directory)
+        true              // Enable interactive selection if no match found
+    );
+    
+    return privateKey;
+}
+
+String ClientConsole::maskInput(const String& prompt) {
+    String input;
+    std::cout << prompt;
+    std::getline(std::cin, input);
+    return input;
 } 

@@ -20,6 +20,8 @@
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
+#include <openssl/pkcs12.h>
+
 
 
 #include "sqlite3.h"

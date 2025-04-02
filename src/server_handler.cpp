@@ -77,13 +77,13 @@ void ServerHandler::handleClient(SOCKET clientSocket) {
         // First send the length prefix
         length = response.length();
         if (send(clientSocket, (char*)&length, sizeof(length), 0) == SOCKET_ERROR) {
-            std::cerr << "Send length failed: " << WSAGetLastError() << std::endl;
+            // std::cerr << "Send length failed: " << WSAGetLastError() << std::endl;
             break;
         }
         
         // Then send the actual response
         if (send(clientSocket, response.c_str(), length, 0) == SOCKET_ERROR) {
-            std::cerr << "Send response failed: " << WSAGetLastError() << std::endl;
+            // std::cerr << "Send response failed: " << WSAGetLastError() << std::endl;
             break;
         }
     }
@@ -309,8 +309,21 @@ json ServerHandler::handleDownloadCertificate(const json& payload, const String&
     auto certData = db.getCertificateData(certificateID);
     
     if (!certData.empty()) {
+        // Get certificate entry for the subject name
+        auto certEntries = db.getAllCertificates();
+        String subjectName = "";
+        
+        // Find the certificate with matching ID
+        for (const auto& cert : certEntries) {
+            if (cert.certificateID == certificateID) {
+                subjectName = cert.subjectName;
+                break;
+            }
+        }
+        
         response["status"] = "success";
         response["data"]["certificateData"] = certData;
+        response["data"]["subjectName"] = subjectName;
         response["message"] = "Certificate downloaded";
     } else {
         response["status"] = "error";

@@ -29,6 +29,7 @@ private:
     void viewCertificateDetails();
     void approveCertificateRequest();
     void revokeCertificate();
+
     
     // Helper functions
     void displayServerStatus();

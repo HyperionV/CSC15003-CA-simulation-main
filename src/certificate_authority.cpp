@@ -101,7 +101,7 @@ public:
 };
 
 CertificateAuthority::CertificateAuthority(DatabaseManager& dbManager, OpenSSLWrapper& sslWrapper)
-    : db(dbManager), ssl(sslWrapper), defaultValidityDays(365) {
+    : db(dbManager), ssl(sslWrapper), defaultValidityDays(365), usePKCS12(false) {
 }
 
 bool CertificateAuthority::initialize(const String& configPath) {
@@ -136,34 +136,82 @@ bool CertificateAuthority::loadCAKeys(const String& configPath) {
         // Parse config
         auto config = SimpleJSON::parse(configStr);
         
-        // Get paths from config
-        String caKeyPath = config["caKeyPath"];
-        String caCertPath = config["caCertPath"];
-        caSubject = config["caSubject"];
-        defaultValidityDays = std::stoi(config["defaultValidityDays"]);
+        // Check if we should use PKCS#12
+        usePKCS12 = false;
+        if (config.find("usePKCS12") != config.end()) {
+            usePKCS12 = (config["usePKCS12"] == "true");
+        }
         
-        // Read CA private key
-        std::ifstream keyFile(caKeyPath);
-        if (!keyFile.is_open()) {
+        if (usePKCS12) {
+            // Load from PKCS#12 file
+            String p12Path = config["caP12Path"];
+            caPassword = config["caPassword"];
+            caSubject = config["caSubject"];
+            defaultValidityDays = std::stoi(config["defaultValidityDays"]);
+            
+            return loadCAKeysFromPKCS12(p12Path);
+        } else {
+            // Get paths from config (traditional PEM format)
+            String caKeyPath = config["caKeyPath"];
+            String caCertPath = config["caCertPath"];
+            caSubject = config["caSubject"];
+            defaultValidityDays = std::stoi(config["defaultValidityDays"]);
+            
+            // Read CA private key
+            std::ifstream keyFile(caKeyPath);
+            if (!keyFile.is_open()) {
+                return false;
+            }
+            std::stringstream keyStream;
+            keyStream << keyFile.rdbuf();
+            caPrivateKey = keyStream.str();
+            
+            // Read CA certificate
+            std::ifstream certFile(caCertPath);
+            if (!certFile.is_open()) {
+                return false;
+            }
+            std::stringstream certStream;
+            certStream << certFile.rdbuf();
+            caCertificate = certStream.str();
+            
+            return true;
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error loading CA keys: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool CertificateAuthority::loadCAKeysFromPKCS12(const String& p12Path) {
+    try {
+        // Read PKCS#12 file
+        std::ifstream p12File(p12Path, std::ios::binary);
+        if (!p12File.is_open()) {
+            std::cerr << "Failed to open PKCS#12 file: " << p12Path << std::endl;
             return false;
         }
-        std::stringstream keyStream;
-        keyStream << keyFile.rdbuf();
-        caPrivateKey = keyStream.str();
         
-        // Read CA certificate
-        std::ifstream certFile(caCertPath);
-        if (!certFile.is_open()) {
+        // Read the entire file into a string
+        std::stringstream p12Stream;
+        p12Stream << p12File.rdbuf();
+        String p12Data = p12Stream.str();
+        
+        // Extract key and certificate from PKCS#12
+        auto keyAndCert = ssl.extractFromPKCS12(p12Data, caPassword);
+        caPrivateKey = keyAndCert.first;
+        caCertificate = keyAndCert.second;
+        
+        if (caPrivateKey.empty() || caCertificate.empty()) {
+            std::cerr << "Failed to extract key and certificate from PKCS#12 file" << std::endl;
             return false;
         }
-        std::stringstream certStream;
-        certStream << certFile.rdbuf();
-        caCertificate = certStream.str();
         
         return true;
     }
     catch (const std::exception& e) {
-        std::cerr << "Error loading CA keys: " << e.what() << std::endl;
+        std::cerr << "Error loading CA keys from PKCS#12: " << e.what() << std::endl;
         return false;
     }
 }
@@ -194,17 +242,31 @@ bool CertificateAuthority::createSelfSignedCA() {
         String csrData = ssl.generateCSR(caPrivateKey, caSubject);
         
         // Self-sign the CSR with a longer validity (10 years)
-        caCertificate = ssl.signCSR(csrData, caPrivateKey, "", 3650);
+        caCertificate = ssl.signCSR(csrData, caPrivateKey, "", 3650, true);
         
         // Save certificate
         std::ofstream certFile(CERT_DIR + "ca_cert.pem");
         certFile << caCertificate;
         certFile.close();
         
+        // Check if we should store as PKCS#12
+        if (usePKCS12) {
+            storeCAKeysAsPKCS12();
+        }
+        
         // Create config file
         std::map<String, String> config;
-        config["caKeyPath"] = KEY_DIR + "ca_private.key";
-        config["caCertPath"] = CERT_DIR + "ca_cert.pem";
+        
+        if (usePKCS12) {
+            config["caP12Path"] = CERT_DIR + "ca_cert.p12";
+            config["caPassword"] = caPassword;
+            config["usePKCS12"] = "true";
+        } else {
+            config["caKeyPath"] = KEY_DIR + "ca_private.key";
+            config["caCertPath"] = CERT_DIR + "ca_cert.pem";
+            config["usePKCS12"] = "false";
+        }
+        
         config["caSubject"] = caSubject;
         config["defaultValidityDays"] = std::to_string(defaultValidityDays);
         
@@ -216,6 +278,41 @@ bool CertificateAuthority::createSelfSignedCA() {
     }
     catch (const std::exception& e) {
         std::cerr << "Error creating self-signed CA: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+bool CertificateAuthority::storeCAKeysAsPKCS12() {
+    try {
+        // If password is empty, prompt for one
+        if (caPassword.empty()) {
+            std::cout << "Enter password for CA PKCS#12 file: ";
+            std::getline(std::cin, caPassword);
+            
+            if (caPassword.empty()) {
+                std::cerr << "Password cannot be empty for PKCS#12 format." << std::endl;
+                return false;
+            }
+        }
+        
+        // Create PKCS#12 with CA key and certificate
+        String p12Data = ssl.createPKCS12(caPrivateKey, caCertificate, caPassword, "CA Certificate");
+        
+        if (p12Data.empty()) {
+            std::cerr << "Failed to create PKCS#12 file for CA" << std::endl;
+            return false;
+        }
+        
+        // Save PKCS#12 file
+        std::ofstream p12File(CERT_DIR + "ca_cert.p12", std::ios::binary);
+        p12File.write(p12Data.data(), p12Data.size());
+        p12File.close();
+        
+        std::cout << "CA keys stored in PKCS#12 format." << std::endl;
+        return true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error storing CA keys as PKCS#12: " << e.what() << std::endl;
         return false;
     }
 }

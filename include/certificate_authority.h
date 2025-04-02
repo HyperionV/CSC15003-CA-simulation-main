@@ -33,7 +33,11 @@ private:
     String caCertificate;
     String caSubject;
     int defaultValidityDays;
+    String caPassword;        // Password for PKCS#12 file
+    bool usePKCS12;           // Whether to use PKCS#12 format
     
     bool loadCAKeys(const String& configPath);
     bool createSelfSignedCA();
+    bool storeCAKeysAsPKCS12();
+    bool loadCAKeysFromPKCS12(const String& p12Path);
 }; 
