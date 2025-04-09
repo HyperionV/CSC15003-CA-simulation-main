@@ -69,7 +69,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -79,7 +79,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -89,7 +89,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <Midl>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -99,7 +99,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <Midl>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -181,10 +181,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="E:\HCMUS\a-crypto\project-fullscale\build\ca_server.vcxproj">
       <Project>{B7763F6A-C464-3CF6-81E4-78B45F2560F3}</Project>
       <Name>ca_server</Name>
-    </ProjectReference>
-    <ProjectReference Include="E:\HCMUS\a-crypto\project-fullscale\build\ca_test.vcxproj">
-      <Project>{406A1C58-7E6B-33FF-AF2E-F0FABA964ED7}</Project>
-      <Name>ca_test</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,7 +1,7 @@
 @echo off
 echo Starting CA Management System Client...
 
-cd Release
-ca_client.exe
+:FOUND_CLIENT
+start "CA Management System Client" cmd /k "cd /d build/bin/ && ca_client.exe && echo Client stopped."
 
-echo Client stopped. 
+exit 

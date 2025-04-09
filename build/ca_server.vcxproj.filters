@@ -1,31 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\main.cpp">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\database.cpp">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\database.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\auth_system.cpp">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\auth_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\openssl_wrapper.cpp">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\openssl_wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\certificate_authority.cpp">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\certificate_authority.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\server_console.cpp">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\server_console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\socket_comm.cpp">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\socket_comm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\server_handler.cpp">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\server_handler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\sqlite3.c">
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\sqlite3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

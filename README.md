@@ -11,6 +11,33 @@ A simple certificate authority management system that allows for issuing, revoki
 - Certificate revocation list (CRL) generation
 - Client-server architecture with socket communication
 
+## System Requirements
+
+- **CMake** (3.10+)
+- **C++ Compiler** with C++17 support
+- **OpenSSL** (1.1.1+)
+- **SQLite3** (included in project for Windows)
+
+## Quick Start
+
+### Windows
+1. Run `precheck.bat` to verify system requirements
+2. Run `build.bat` to build the project
+3. Start server: `run_server.bat`
+4. Start client: `run_client.bat`
+
+### Linux
+1. Run `./precheck.sh` to verify system requirements
+2. Run `./setup_linux.sh` to build the application
+3. Start server: `./ca_server`
+4. Start client: `./ca_client`
+
+### macOS
+1. Run `./precheck.sh` to verify system requirements
+2. Run `./setup_macos.sh` to build the application
+3. Start server: `./ca_server`
+4. Start client: `./ca_client`
+
 ## Components
 
 ### Server Components
@@ -27,12 +54,27 @@ A simple certificate authority management system that allows for issuing, revoki
 - **Client Console**: Provides a console-based user interface for client operations
 - **Socket Communication**: Handles communication with the server
 
-## Requirements
+## Installing Prerequisites
 
-- Visual Studio 2019 or later
-- OpenSSL libraries
-- SQLite
-- CMake
+### CMake (3.10+)
+- **Windows**: Download from [cmake.org](https://cmake.org/download/) and add to PATH
+- **Linux**: `sudo apt install cmake` or `sudo yum install cmake`
+- **macOS**: `brew install cmake`
+
+### C++ Compiler
+- **Windows**: Visual Studio 2019+ or MinGW-w64 with GCC 7+
+- **Linux**: GCC 7+ via `sudo apt install g++` or `sudo yum install gcc-c++`
+- **macOS**: Xcode Command Line Tools: `xcode-select --install`
+
+### OpenSSL (1.1.1+)
+- **Windows**: Download from [slproweb.com](https://slproweb.com/products/Win32OpenSSL.html) (Win64 OpenSSL)
+- **Linux**: `sudo apt install libssl-dev` or `sudo yum install openssl-devel`
+- **macOS**: `brew install openssl@1.1` and add to PATH
+
+### SQLite3
+- **Windows**: Included in the project
+- **Linux**: `sudo apt install libsqlite3-dev` or `sudo yum install sqlite-devel`
+- **macOS**: `brew install sqlite3`
 
 ## Building and Running the Project
 
@@ -64,46 +106,44 @@ A simple certificate authority management system that allows for issuing, revoki
    .\Release\ca_client.exe
    ```
 
-6. **Run tests**:
-   ```
-   .\Release\ca_test.exe
-   ```
-
-7. **Rebuild after making changes**:
-   ```
-   cd build
-   cmake --build . --config Release
-   ```
-
 ### Using Batch Files
 
 The project includes several batch files to simplify building and running:
 
-- **build.bat**: Builds the project using CMake and copies the executable files to a Release folder in the root directory.
+- **build.bat**: Builds the project using CMake.
   ```
   .\build.bat
   ```
-- To use both the server and the client, perform the following actions, each in one CMD window.
-  - **run_server.bat**: Starts the CA server application from the Release folder.
-    ```
-    .\run_server.bat
-    ```
 
-  - **run_client.bat**: Starts the CA client application from the Release folder.
-    ```
-    .\run_client.bat
-    ```
-
-- **run_tests.bat**: Runs the test suite from the Release folder, for **quick testing** all essential features.
+- **run_server.bat**: Starts the CA server application.
   ```
-  .\run_tests.bat
+  .\run_server.bat
+  ```
+
+- **run_client.bat**: Starts the CA client application.
+  ```
+  .\run_client.bat
   ```
 
 **Workflow with batch files**:
-1. Run `build.bat` to build the project
-2. Run `run_server.bat` to start the server
-3. In a separate CMD, run `run_client.bat` to start the client
-4. After making code changes, run `build.bat` again to rebuild the project
+1. Run `precheck.bat` to verify requirements
+2. Run `build.bat` to build the project
+3. Run `run_server.bat` to start the server
+4. In a separate terminal, run `run_client.bat` to start the client
+
+## Troubleshooting
+
+### OpenSSL Not Found
+- Ensure OpenSSL is installed and in PATH
+- Specify path manually: `cmake -DOPENSSL_ROOT_DIR="C:/OpenSSL-Win64" ..`
+
+### Compiler Errors
+- Verify C++17 support in your compiler
+- Update compiler if needed
+
+### Windows-Specific
+- Ensure Windows SDK is installed for socket functionality
+- OpenSSL bin directory must be in PATH
 
 ## Configuration
 

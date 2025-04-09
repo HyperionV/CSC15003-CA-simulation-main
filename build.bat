@@ -1,23 +1,24 @@
 @echo off
 echo Building CA Management System...
 
+:: Create build directory if it doesn't exist
 if not exist build mkdir build
+
+:: Navigate to build directory
 cd build
 
+:: Generate build files
+echo Generating build files with CMake...
 cmake ..
+
+:: Build the project
+echo Building the project...
 cmake --build . --config Release
 
-echo Copying Release folder to root directory...
+:: Return to root directory
 cd ..
-if exist Release (
-    echo Removing old Release folder...
-    rmdir /S /Q Release
-)
-cd build
-if exist Release (
-    echo Copying new Release folder...
-    xcopy /E /I /Y Release ..\Release
-)
 
-cd ..
-echo Build completed. 
+echo Build completed. Executables are in build\bin directory.
+echo Run run_server.bat to start the server.
+echo Run run_client.bat to start the client.
+pause 

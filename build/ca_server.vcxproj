@@ -59,25 +59,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">E:\HCMUS\a-crypto\project-fullscale\build\Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">E:\HCMUS\a-crypto\project-fullscale\build\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ca_server.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ca_server</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">E:\HCMUS\a-crypto\project-fullscale\build\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">E:\HCMUS\a-crypto\project-fullscale\build\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ca_server.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ca_server</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">E:\HCMUS\a-crypto\project-fullscale\build\MinSizeRel\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">E:\HCMUS\a-crypto\project-fullscale\build\bin\MinSizeRel\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">ca_server.dir\MinSizeRel\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">ca_server</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">E:\HCMUS\a-crypto\project-fullscale\build\RelWithDebInfo\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">E:\HCMUS\a-crypto\project-fullscale\build\bin\RelWithDebInfo\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">ca_server.dir\RelWithDebInfo\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">ca_server</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
@@ -86,10 +86,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4267;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -107,10 +108,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -124,7 +125,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImportLibrary>E:/HCMUS/a-crypto/project-fullscale/build/Debug/ca_server.lib</ImportLibrary>
-      <ProgramDataBaseFile>E:/HCMUS/a-crypto/project-fullscale/build/Debug/ca_server.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>E:/HCMUS/a-crypto/project-fullscale/build/bin/ca_server.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -133,9 +134,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DisableSpecificWarnings>4267;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -155,10 +157,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -172,7 +174,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImportLibrary>E:/HCMUS/a-crypto/project-fullscale/build/Release/ca_server.lib</ImportLibrary>
-      <ProgramDataBaseFile>E:/HCMUS/a-crypto/project-fullscale/build/Release/ca_server.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>E:/HCMUS/a-crypto/project-fullscale/build/bin/ca_server.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -181,9 +183,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DisableSpecificWarnings>4267;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -203,10 +206,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -220,7 +223,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImportLibrary>E:/HCMUS/a-crypto/project-fullscale/build/MinSizeRel/ca_server.lib</ImportLibrary>
-      <ProgramDataBaseFile>E:/HCMUS/a-crypto/project-fullscale/build/MinSizeRel/ca_server.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>E:/HCMUS/a-crypto/project-fullscale/build/bin/MinSizeRel/ca_server.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -229,10 +232,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4267;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -250,10 +254,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\include;E:\HCMUS\a-crypto\project-fullscale\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\HCMUS\a-crypto\project-fullscale\source\include;E:\HCMUS\a-crypto\project-fullscale\source\lib;C:\Program Files\OpenSSL-Win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -267,7 +271,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImportLibrary>E:/HCMUS/a-crypto/project-fullscale/build/RelWithDebInfo/ca_server.lib</ImportLibrary>
-      <ProgramDataBaseFile>E:/HCMUS/a-crypto/project-fullscale/build/RelWithDebInfo/ca_server.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>E:/HCMUS/a-crypto/project-fullscale/build/bin/RelWithDebInfo/ca_server.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -332,15 +336,15 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\main.cpp" />
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\database.cpp" />
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\auth_system.cpp" />
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\openssl_wrapper.cpp" />
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\certificate_authority.cpp" />
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\server_console.cpp" />
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\socket_comm.cpp" />
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\server_handler.cpp" />
-    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\src\sqlite3.c" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\main.cpp" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\database.cpp" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\auth_system.cpp" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\openssl_wrapper.cpp" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\certificate_authority.cpp" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\server_console.cpp" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\socket_comm.cpp" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\server_handler.cpp" />
+    <ClCompile Include="E:\HCMUS\a-crypto\project-fullscale\source\src\sqlite3.c" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
