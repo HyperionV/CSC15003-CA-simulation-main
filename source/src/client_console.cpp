@@ -10,7 +10,6 @@ using json = nlohmann::json;
 
 ClientConsole::ClientConsole(OpenSSLWrapper& sslWrapper)
     : ssl(sslWrapper), running(true), loggedIn(false) {
-    // Initialize socket
     SocketManager::initialize();
 }
 
@@ -26,11 +25,11 @@ void ClientConsole::run() {
 
 void ClientConsole::displayAuthMenu() {
     system("cls");
-    std::cout << "CA Management System - Client" << std::endl;
-    std::cout << "============================" << std::endl;
-    std::cout << "1. Login" << std::endl;
-    std::cout << "2. Register" << std::endl;
-    std::cout << "0. Exit" << std::endl;
+    cout << "CA Management System - Client" << endl;
+    cout << "============================" << endl;
+    cout << "1. Login" << endl;
+    cout << "2. Register" << endl;
+    cout << "0. Exit" << endl;
     
     int choice = getIntInput("Enter your choice: ");
     
@@ -53,17 +52,17 @@ void ClientConsole::displayAuthMenu() {
 void ClientConsole::displayCertificateMenu() {
     while (true) {
         system("cls");
-        std::cout << "CA Management System - Client" << std::endl;
-        std::cout << "============================" << std::endl;
-        std::cout << "Logged in as: " << currentUsername << std::endl;
-        std::cout << "\n";
-        std::cout << "1. Request Certificate" << std::endl;
-        std::cout << "2. View My Certificates" << std::endl;
-        std::cout << "3. Revoke Certificate" << std::endl;
-        std::cout << "4. Download Certificate" << std::endl;
-        std::cout << "5. Validate Certificate" << std::endl;
-        std::cout << "6. Logout" << std::endl;
-        std::cout << "0. Exit" << std::endl;
+        cout << "CA Management System - Client" << endl;
+        cout << "============================" << endl;
+        cout << "Logged in as: " << currentUsername << endl;
+        cout << "\n";
+        cout << "1. Request Certificate" << endl;
+        cout << "2. View My Certificates" << endl;
+        cout << "3. Revoke Certificate" << endl;
+        cout << "4. Download Certificate" << endl;
+        cout << "5. Validate Certificate" << endl;
+        cout << "6. Logout" << endl;
+        cout << "0. Exit" << endl;
         
         int choice = getIntInput("Enter your choice: ");
         
@@ -98,12 +97,12 @@ void ClientConsole::displayCertificateMenu() {
 
 bool ClientConsole::login() {
     system("cls");
-    std::cout << "=== Login ===" << std::endl;
+    cout << "=== Login ===" << endl;
     
     String username = getInput("Username: ");
     String password = getInput("Password: ");
     
-    std::map<String, String> payload;
+    map<String, String> payload;
     payload["username"] = username;
     payload["password"] = password;
     
@@ -123,7 +122,7 @@ bool ClientConsole::login() {
             return false;
         }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
         displayMessage("Error parsing response: " + String(e.what()));
         return false;
     }
@@ -131,13 +130,13 @@ bool ClientConsole::login() {
 
 bool ClientConsole::registerUser() {
     system("cls");
-    std::cout << "=== Register ===" << std::endl;
+    cout << "=== Register ===" << endl;
     
     String username = getInput("Username: ");
     String password = getInput("Password: ");
     String email = getInput("Email: ");
     
-    std::map<String, String> payload;
+    map<String, String> payload;
     payload["username"] = username;
     payload["password"] = password;
     payload["email"] = email;
@@ -155,7 +154,7 @@ bool ClientConsole::registerUser() {
             return false;
         }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
         displayMessage("Error parsing response: " + String(e.what()));
         return false;
     }
@@ -166,7 +165,7 @@ void ClientConsole::logout() {
         return;
     }
     
-    std::map<String, String> payload;
+    map<String, String> payload;
     String response = sendRequest("logout", payload);
     
     // Even if server response fails, we'll log out locally
@@ -179,10 +178,10 @@ void ClientConsole::logout() {
 
 void ClientConsole::requestCertificate() {
     system("cls");
-    std::cout << "=== Request Certificate ===" << std::endl;
+    cout << "=== Request Certificate ===" << endl;
     
     // Get subject information
-    std::cout << "Enter subject information:" << std::endl;
+    cout << "Enter subject information:" << endl;
     String commonName = getInput("Common Name (CN): ");
     String organization = getInput("Organization (O): ");
     String country = getInput("Country (C): ");
@@ -191,26 +190,26 @@ void ClientConsole::requestCertificate() {
     String subject = "CN=" + commonName + ",O=" + organization + ",C=" + country;
     
     // Generate key pair
-    std::cout << "Generating key pair..." << std::endl;
+    cout << "Generating key pair..." << endl;
     auto keyPair = ssl.generateRSAKeyPair(2048);
     String privateKey = keyPair.first;
     String publicKey = keyPair.second;
     
     // Generate CSR
-    std::cout << "Generating certificate signing request..." << std::endl;
+    cout << "Generating certificate signing request..." << endl;
     String csrData = ssl.generateCSR(privateKey, subject);
     
     // Save private key to file
     String keyFilename = commonName + ".key";
-    std::ofstream keyFile(keyFilename);
+    ofstream keyFile(keyFilename);
     keyFile << privateKey;
     keyFile.close();
     
-    std::cout << "Private key saved to " << keyFilename << std::endl;
-    std::cout << "IMPORTANT: Keep this file secure!" << std::endl;
+    cout << "Private key saved to " << keyFilename << endl;
+    cout << "IMPORTANT: Keep this file secure!" << endl;
     
     // Submit CSR to server
-    std::map<String, String> payload;
+    map<String, String> payload;
     payload["csr"] = csrData;
     
     String response = sendRequest("request_certificate", payload);
@@ -221,21 +220,21 @@ void ClientConsole::requestCertificate() {
         if (responseJson["status"] == "success") {
             int requestID = responseJson["data"]["requestID"];
             displayMessage("Certificate request submitted successfully. Request ID: " + 
-                          std::to_string(requestID));
+                          to_string(requestID));
         } else {
             displayMessage("Certificate request failed: " + responseJson["message"].get<String>());
         }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
         displayMessage("Error parsing response: " + String(e.what()));
     }
 }
 
 void ClientConsole::viewCertificates() {
     system("cls");
-    std::cout << "=== My Certificates ===" << std::endl;
+    cout << "=== My Certificates ===" << endl;
     
-    std::map<String, String> payload;
+    map<String, String> payload;
     String response = sendRequest("get_certificates", payload);
     
     try {
@@ -245,30 +244,30 @@ void ClientConsole::viewCertificates() {
             auto certificates = responseJson["data"]["certificates"];
             
             if (certificates.empty()) {
-                std::cout << "You don't have any certificates." << std::endl;
+                cout << "You don't have any certificates." << endl;
             } else {
-                std::cout << "------------------------------------\n";
-                std::cout << std::left << std::setw(5) << "ID" << " | " 
-                          << std::setw(15) << "Serial" << " | " 
-                          << std::setw(20) << "Subject" << " | " 
-                          << std::setw(10) << "Status" << " | " 
-                          << "Expiry" << std::endl;
-                std::cout << "------------------------------------\n";
+                cout << "------------------------------------\n";
+                cout << left << setw(5) << "ID" << " | " 
+                          << setw(15) << "Serial" << " | " 
+                          << setw(20) << "Subject" << " | " 
+                          << setw(10) << "Status" << " | " 
+                          << "Expiry" << endl;
+                cout << "------------------------------------\n";
                 
                 for (const auto& cert : certificates) {
-                    std::cout << std::left << std::setw(5) << cert["certificateID"].get<int>() << " | " 
-                              << std::setw(15) << cert["serialNumber"].get<String>().substr(0, 12) + "..." << " | " 
-                              << std::setw(20) << cert["subjectName"].get<String>() << " | " 
-                              << std::setw(10) << cert["status"].get<String>() << " | " 
-                              << cert["validTo"].get<String>() << std::endl;
+                    cout << left << setw(5) << cert["certificateID"].get<int>() << " | " 
+                              << setw(15) << cert["serialNumber"].get<String>().substr(0, 12) + "..." << " | " 
+                              << setw(20) << cert["subjectName"].get<String>() << " | " 
+                              << setw(10) << cert["status"].get<String>() << " | " 
+                              << cert["validTo"].get<String>() << endl;
                 }
             }
         } else {
-            std::cout << "Failed to retrieve certificates: " << responseJson["message"].get<String>() << std::endl;
+            cout << "Failed to retrieve certificates: " << responseJson["message"].get<String>() << endl;
         }
     }
-    catch (const std::exception& e) {
-        std::cout << "Error parsing response: " << e.what() << std::endl;
+    catch (const exception& e) {
+        cout << "Error parsing response: " << e.what() << endl;
     }
     
     waitForEnter();
@@ -276,7 +275,7 @@ void ClientConsole::viewCertificates() {
 
 void ClientConsole::revokeCertificate() {
     system("cls");
-    std::cout << "=== Revoke Certificate ===" << std::endl;
+    cout << "=== Revoke Certificate ===" << endl;
     
     // First, get the list of certificates
     viewCertificates();
@@ -288,8 +287,8 @@ void ClientConsole::revokeCertificate() {
     
     String reason = getInput("Enter revocation reason: ");
     
-    std::map<String, String> payload;
-    payload["certificateID"] = std::to_string(certID);
+    map<String, String> payload;
+    payload["certificateID"] = to_string(certID);
     payload["reason"] = reason;
     
     String response = sendRequest("revoke_certificate", payload);
@@ -303,14 +302,14 @@ void ClientConsole::revokeCertificate() {
             displayMessage("Failed to revoke certificate: " + responseJson["message"].get<String>());
         }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
         displayMessage("Error parsing response: " + String(e.what()));
     }
 }
 
 void ClientConsole::downloadCertificate() {
     system("cls");
-    std::cout << "=== Download Certificate ===" << std::endl;
+    cout << "=== Download Certificate ===" << endl;
     
     // First, get the list of certificates
     viewCertificates();
@@ -321,9 +320,9 @@ void ClientConsole::downloadCertificate() {
     }
     
     // Ask for format choice
-    std::cout << "\nChoose format:" << std::endl;
-    std::cout << "1. PEM (certificate only)" << std::endl;
-    std::cout << "2. PKCS#12 (certificate and private key bundled, password protected)" << std::endl;
+    cout << "\nChoose format:" << endl;
+    cout << "1. PEM (certificate only)" << endl;
+    cout << "2. PKCS#12 (certificate and private key bundled, password protected)" << endl;
     
     int formatChoice = getIntInput("Enter your choice: ");
     if (formatChoice != 1 && formatChoice != 2) {
@@ -332,8 +331,8 @@ void ClientConsole::downloadCertificate() {
     }
     
     // Request certificate from server
-    std::map<String, String> payload;
-    payload["certificateID"] = std::to_string(certID);
+    map<String, String> payload;
+    payload["certificateID"] = to_string(certID);
     
     String response = sendRequest("download_certificate", payload);
     
@@ -346,12 +345,12 @@ void ClientConsole::downloadCertificate() {
             
             // Create the Certs directory if it doesn't exist
             const String certsDir = "Certs";
-            std::filesystem::create_directories(certsDir);
+            filesystem::create_directories(certsDir);
             
             if (formatChoice == 1) {
                 // Save as PEM format
-                String filename = certsDir + "/certificate_" + std::to_string(certID) + ".pem";
-                std::ofstream certFile(filename);
+                String filename = certsDir + "/certificate_" + to_string(certID) + ".pem";
+                ofstream certFile(filename);
                 certFile << certificateData;
                 certFile.close();
                 
@@ -374,7 +373,7 @@ void ClientConsole::downloadCertificate() {
                 }
                 
                 // Create friendly name from subject or certificate ID
-                String friendlyName = "Certificate_" + std::to_string(certID);
+                String friendlyName = "Certificate_" + to_string(certID);
                 if (!subjectName.empty()) {
                     // Try to extract CN if available
                     size_t cnPos = subjectName.find("CN=");
@@ -395,8 +394,8 @@ void ClientConsole::downloadCertificate() {
                 }
                 
                 // Save PKCS#12 file
-                String filename = certsDir + "/certificate_" + std::to_string(certID) + ".p12";
-                std::ofstream p12File(filename, std::ios::binary);
+                String filename = certsDir + "/certificate_" + to_string(certID) + ".p12";
+                ofstream p12File(filename, ios::binary);
                 p12File.write(p12Data.data(), p12Data.size());
                 p12File.close();
                 
@@ -406,28 +405,28 @@ void ClientConsole::downloadCertificate() {
             displayMessage("Failed to download certificate: " + responseJson["message"].get<String>());
         }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
         displayMessage("Error parsing response: " + String(e.what()));
     }
 }
 
 void ClientConsole::validateCertificate() {
     system("cls");
-    std::cout << "=== Validate Certificate ===" << std::endl;
+    cout << "=== Validate Certificate ===" << endl;
     
     // Create the Certs directory if it doesn't exist
     const String certsDir = "Certs";
-    std::filesystem::create_directories(certsDir);
+    filesystem::create_directories(certsDir);
     
     // Get list of certificate files in the Certs directory
-    std::vector<String> certFiles;
+    vector<String> certFiles;
     try {
-        for (const auto& entry : std::filesystem::directory_iterator(certsDir)) {
+        for (const auto& entry : filesystem::directory_iterator(certsDir)) {
             if (entry.is_regular_file() && entry.path().extension() == ".pem") {
                 certFiles.push_back(entry.path().string());
             }
         }
-    } catch (const std::exception& e) {
+    } catch (const exception& e) {
         displayMessage("Error reading certificate directory: " + String(e.what()));
         return;
     }
@@ -439,15 +438,15 @@ void ClientConsole::validateCertificate() {
     }
     
     // Display the list of certificate files with indices
-    std::cout << "Available Certificate Files:" << std::endl;
-    std::cout << "----------------------------" << std::endl;
+    cout << "Available Certificate Files:" << endl;
+    cout << "----------------------------" << endl;
     for (size_t i = 0; i < certFiles.size(); i++) {
         // Extract just the filename for display
-        String displayName = std::filesystem::path(certFiles[i]).filename().string();
-        std::cout << i + 1 << ". " << displayName << std::endl;
+        String displayName = filesystem::path(certFiles[i]).filename().string();
+        cout << i + 1 << ". " << displayName << endl;
     }
-    std::cout << "----------------------------" << std::endl;
-    std::cout << std::endl;
+    cout << "----------------------------" << endl;
+    cout << endl;
     
     // Ask user to select a certificate file by index
     int selection = getIntInput("Enter the number of the certificate to validate (0 to cancel): ");
@@ -462,20 +461,20 @@ void ClientConsole::validateCertificate() {
     String filename = certFiles[selection - 1];
     
     // Read certificate file
-    std::ifstream certFile(filename);
+    ifstream certFile(filename);
     if (!certFile.is_open()) {
         displayMessage("Failed to open certificate file: " + filename);
         return;
     }
     
-    std::stringstream certStream;
+    stringstream certStream;
     certStream << certFile.rdbuf();
     String certificateData = certStream.str();
     certFile.close();
     
     // Display certificate information
-    std::cout << "\nValidating certificate: " << std::filesystem::path(filename).filename().string() << std::endl;
-    std::cout << "----------------------------" << std::endl;
+    cout << "\nValidating certificate: " << filesystem::path(filename).filename().string() << endl;
+    cout << "----------------------------" << endl;
     
     // Send validation request
     json payload;
@@ -489,33 +488,33 @@ void ClientConsole::validateCertificate() {
         if (responseJson["status"] == "success") {
             bool valid = responseJson["data"]["valid"];
             
-            std::cout << "Validation result: ";
+            cout << "Validation result: ";
             if (valid) {
-                std::cout << "VALID" << std::endl;
-                std::cout << "The certificate is valid and issued by a trusted CA." << std::endl;
-                std::cout << "It has not been revoked and is within its validity period." << std::endl;
+                cout << "VALID" << endl;
+                cout << "The certificate is valid and issued by a trusted CA." << endl;
+                cout << "It has not been revoked and is within its validity period." << endl;
             } else {
-                std::cout << "INVALID" << std::endl;
-                std::cout << "The certificate is invalid or has been revoked." << std::endl;
+                cout << "INVALID" << endl;
+                cout << "The certificate is invalid or has been revoked." << endl;
                 
                 // If there's an error message, display it
                 if (responseJson["data"].contains("error")) {
-                    std::cout << "Error: " << responseJson["data"]["error"].get<String>() << std::endl;
+                    cout << "Error: " << responseJson["data"]["error"].get<String>() << endl;
                 }
             }
             
-            std::cout << "----------------------------" << std::endl;
+            cout << "----------------------------" << endl;
             waitForEnter();
         } else {
             displayMessage("Failed to validate certificate: " + responseJson["message"].get<String>());
         }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
         displayMessage("Error parsing response: " + String(e.what()));
     }
 }
 
-String ClientConsole::sendRequest(const String& action, const std::map<String, String>& payload) {
+String ClientConsole::sendRequest(const String& action, const map<String, String>& payload) {
     // Build request JSON
     json request;
     request["action"] = action;
@@ -653,7 +652,7 @@ String ClientConsole::simulateServerResponse(const String& request) {
             return response.dump();
         }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
         json response;
         response["status"] = "error";
         response["message"] = "Error processing request: " + String(e.what());
@@ -663,27 +662,27 @@ String ClientConsole::simulateServerResponse(const String& request) {
 
 String ClientConsole::getInput(const String& prompt) {
     String input;
-    std::cout << prompt;
-    std::getline(std::cin, input);
+    cout << prompt;
+    getline(cin, input);
     return input;
 }
 
 int ClientConsole::getIntInput(const String& prompt) {
     String input = getInput(prompt);
     try {
-        return std::stoi(input);
+        return stoi(input);
     } catch (...) {
         return -1;
     }
 }
 
 void ClientConsole::waitForEnter() {
-    std::cout << "\nPress Enter to continue...";
-    std::cin.get();
+    cout << "\nPress Enter to continue...";
+    cin.get();
 }
 
 void ClientConsole::displayMessage(const String& message) {
-    std::cout << "\n" << message << std::endl;
+    cout << "\n" << message << endl;
     waitForEnter();
 }
 
@@ -701,7 +700,7 @@ String ClientConsole::findMatchingPrivateKey(const String& certificateData, cons
 
 String ClientConsole::maskInput(const String& prompt) {
     String input;
-    std::cout << prompt;
-    std::getline(std::cin, input);
+    cout << prompt;
+    getline(cin, input);
     return input;
 } 

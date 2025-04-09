@@ -12,35 +12,29 @@ ServerHandler::ServerHandler(AuthenticationSystem& authSystem,
 }
 
 bool ServerHandler::start(int port) {
-    // Initialize socket
     if (!SocketManager::initialize()) {
-        std::cerr << "Failed to initialize socket manager" << std::endl;
+        cerr << "Failed to initialize socket manager" << endl;
         return false;
     }
-    
-    // Bind socket
+
     serverSocket = ServerSocket(port);
     if (!serverSocket.bind()) {
-        std::cerr << "Failed to bind server socket" << std::endl;
+        cerr << "Failed to bind server socket" << endl;
         return false;
     }
-    
-    // Listen for connections
+
     if (!serverSocket.listen()) {
-        std::cerr << "Failed to listen on server socket" << std::endl;
+        cerr << "Failed to listen on server socket" << endl;
         return false;
     }
     
-    std::cout << "Server started on port " << port << std::endl;
+    cout << "Server started on port " << port << endl;
     
     running = true;
-    
-    // Accept and handle client connections
+
     while (running) {
         SOCKET clientSocket = serverSocket.accept();
         if (clientSocket != INVALID_SOCKET) {
-            // In a real server, we would create a thread for each client
-            // For simplicity, we'll handle clients sequentially
             handleClient(clientSocket);
         }
     }
@@ -55,59 +49,44 @@ void ServerHandler::stop() {
 }
 
 void ServerHandler::handleClient(SOCKET clientSocket) {
-    // Receive and process client messages
     bool connected = true;
     
     while (connected) {
-        // First receive the length prefix
         uint32_t length = 0;
         int bytesReceived = recv(clientSocket, (char*)&length, sizeof(length), 0);
-        
-        // Now receive the exact message length
-        std::vector<char> buffer(length + 1, 0);
+
+        vector<char> buffer(length + 1, 0);
         bytesReceived = recv(clientSocket, buffer.data(), length, 0);
         
-        
-        // Null-terminate the received data and process it
         buffer[bytesReceived] = '\0';
         String request(buffer.data(), bytesReceived);
         String response = processRequest(request);
         
-        // Send response to client
-        // First send the length prefix
         length = response.length();
         if (send(clientSocket, (char*)&length, sizeof(length), 0) == SOCKET_ERROR) {
-            // std::cerr << "Send length failed: " << WSAGetLastError() << std::endl;
             break;
         }
-        
-        // Then send the actual response
+
         if (send(clientSocket, response.c_str(), length, 0) == SOCKET_ERROR) {
-            // std::cerr << "Send response failed: " << WSAGetLastError() << std::endl;
             break;
         }
     }
-    
-    // Close the client socket
+
     closesocket(clientSocket);
 }
 
 String ServerHandler::processRequest(const String& request) {
     try {
-        // Parse JSON request
         json requestJson = json::parse(request);
-        
-        // Extract action and payload
+
         String action = requestJson["action"];
         json payload = requestJson["payload"];
-        
-        // Check if request includes a session token
+
         String token = "";
         if (requestJson.contains("token")) {
             token = requestJson["token"];
         }
-        
-        // Process based on action
+
         json responseJson;
         
         if (action == "login") {
@@ -138,12 +117,10 @@ String ServerHandler::processRequest(const String& request) {
             responseJson["status"] = "error";
             responseJson["message"] = "Unknown action: " + action;
         }
-        
-        // Return JSON response
+
         return responseJson.dump();
     }
-    catch (const std::exception& e) {
-        // Handle parsing errors
+    catch (const exception& e) {
         json errorResponse;
         errorResponse["status"] = "error";
         errorResponse["message"] = "Error processing request: " + String(e.what());
@@ -163,8 +140,7 @@ json ServerHandler::handleLogin(const json& payload) {
         response["status"] = "success";
         response["data"]["token"] = token;
         response["message"] = "Login successful";
-        
-        // Log the login
+
         db.logActivity("User login", db.getUserID(username), 0, "User logged in: " + username);
     } else {
         response["status"] = "error";
@@ -208,8 +184,7 @@ json ServerHandler::handleLogout(const json& payload, const String& token) {
 
 json ServerHandler::handleRequestCertificate(const json& payload, const String& token) {
     json response;
-    
-    // Validate session
+
     if (!auth.validateSession(token)) {
         response["status"] = "error";
         response["message"] = "Authentication required";
@@ -235,8 +210,7 @@ json ServerHandler::handleRequestCertificate(const json& payload, const String& 
 
 json ServerHandler::handleGetCertificates(const json& payload, const String& token) {
     json response;
-    
-    // Validate session
+
     if (!auth.validateSession(token)) {
         response["status"] = "error";
         response["message"] = "Authentication required";
@@ -269,8 +243,7 @@ json ServerHandler::handleGetCertificates(const json& payload, const String& tok
 
 json ServerHandler::handleRevokeCertificate(const json& payload, const String& token) {
     json response;
-    
-    // Validate session
+
     if (!auth.validateSession(token)) {
         response["status"] = "error";
         response["message"] = "Authentication required";
@@ -278,7 +251,7 @@ json ServerHandler::handleRevokeCertificate(const json& payload, const String& t
     }
     
     String username = auth.getUsernameFromToken(token);
-    int certificateID = std::stoi(payload["certificateID"].get<String>());
+    int certificateID = stoi(payload["certificateID"].get<String>());
     String reason = payload["reason"];
     
     if (ca.revokeCertificate(certificateID, reason, username)) {
@@ -294,8 +267,7 @@ json ServerHandler::handleRevokeCertificate(const json& payload, const String& t
 
 json ServerHandler::handleDownloadCertificate(const json& payload, const String& token) {
     json response;
-    
-    // Validate session
+
     if (!auth.validateSession(token)) {
         response["status"] = "error";
         response["message"] = "Authentication required";
@@ -303,17 +275,14 @@ json ServerHandler::handleDownloadCertificate(const json& payload, const String&
     }
     
     String username = auth.getUsernameFromToken(token);
-    int certificateID = std::stoi(payload["certificateID"].get<String>());
-    
-    // Get certificate data
+    int certificateID = stoi(payload["certificateID"].get<String>());
+
     auto certData = db.getCertificateData(certificateID);
     
     if (!certData.empty()) {
-        // Get certificate entry for the subject name
         auto certEntries = db.getAllCertificates();
         String subjectName = "";
-        
-        // Find the certificate with matching ID
+
         for (const auto& cert : certEntries) {
             if (cert.certificateID == certificateID) {
                 subjectName = cert.subjectName;
@@ -335,8 +304,7 @@ json ServerHandler::handleDownloadCertificate(const json& payload, const String&
 
 json ServerHandler::handleValidateCertificate(const json& payload, const String& token) {
     json response;
-    
-    // Validate session
+
     if (!auth.validateSession(token)) {
         response["status"] = "error";
         response["message"] = "Authentication required";
@@ -344,8 +312,7 @@ json ServerHandler::handleValidateCertificate(const json& payload, const String&
     }
     
     String certificateData = payload["certificateData"];
-    
-    // First, try to parse the certificate to check its basic format
+
     BIO* certBio = BIO_new_mem_buf(certificateData.c_str(), -1);
     X509* cert = PEM_read_bio_X509(certBio, nullptr, nullptr, nullptr);
     BIO_free(certBio);
@@ -357,11 +324,9 @@ json ServerHandler::handleValidateCertificate(const json& payload, const String&
         response["message"] = "Certificate validation failed";
         return response;
     }
-    
-    // Certificate is valid format, now check its validity against CA
+
     bool valid = ca.validateCertificate(certificateData);
-    
-    // Clean up the X509 object
+
     X509_free(cert);
     
     if (valid) {
@@ -371,10 +336,7 @@ json ServerHandler::handleValidateCertificate(const json& payload, const String&
     } else {
         response["status"] = "success";
         response["data"]["valid"] = false;
-        
-        // Get specific error detail from certificate authority
-        // For now, we'll provide a generic message, but in a real implementation
-        // the CA could return specific error details (expiration, revocation, etc.)
+
         response["data"]["error"] = "The certificate is not trusted, has expired, or has been revoked";
         response["message"] = "Certificate is invalid";
     }

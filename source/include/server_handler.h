@@ -30,8 +30,6 @@ private:
     
     void handleClient(SOCKET clientSocket);
     String processRequest(const String& request);
-    
-    // Request handlers
     json handleLogin(const json& payload);
     json handleRegister(const json& payload);
     json handleLogout(const json& payload, const String& token);

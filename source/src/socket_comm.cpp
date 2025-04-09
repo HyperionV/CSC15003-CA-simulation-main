@@ -21,22 +21,19 @@ ServerSocket::~ServerSocket() {
 }
 
 bool ServerSocket::bind() {
-    // Create socket
     serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (serverSocket == INVALID_SOCKET) {
-        std::cerr << "Error creating socket: " << WSAGetLastError() << std::endl;
+        cerr << "Error creating socket: " << WSAGetLastError() << endl;
         return false;
     }
-    
-    // Set up server address
+
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port = htons(port);
-    
-    // Bind socket
+
     if (::bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-        std::cerr << "Bind failed: " << WSAGetLastError() << std::endl;
+        cerr << "Bind failed: " << WSAGetLastError() << endl;
         closesocket(serverSocket);
         serverSocket = INVALID_SOCKET;
         return false;
@@ -52,7 +49,7 @@ bool ServerSocket::listen(int backlog) {
     }
     
     if (::listen(serverSocket, backlog) == SOCKET_ERROR) {
-        std::cerr << "Listen failed: " << WSAGetLastError() << std::endl;
+        cerr << "Listen failed: " << WSAGetLastError() << endl;
         return false;
     }
     
@@ -70,7 +67,7 @@ SOCKET ServerSocket::accept() {
     SOCKET clientSocket = ::accept(serverSocket, (sockaddr*)&clientAddr, &clientAddrSize);
     
     if (clientSocket == INVALID_SOCKET) {
-        std::cerr << "Accept failed: " << WSAGetLastError() << std::endl;
+        cerr << "Accept failed: " << WSAGetLastError() << endl;
     }
     
     return clientSocket;
@@ -92,35 +89,31 @@ ClientSocket::~ClientSocket() {
 }
 
 bool ClientSocket::connect(const String& host, int port) {
-    // Create socket
     clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (clientSocket == INVALID_SOCKET) {
-        std::cerr << "Error creating socket: " << WSAGetLastError() << std::endl;
+        cerr << "Error creating socket: " << WSAGetLastError() << endl;
         return false;
     }
-    
-    // Set up server address
+
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(port);
-    
-    // Convert host to IP
+
     int result = inet_pton(AF_INET, host.c_str(), &serverAddr.sin_addr);
     if (result <= 0) {
-        // If conversion fails or input is not valid IP, fallback to localhost IP
         if (host == "localhost") {
             inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
         } else {
-            std::cerr << "Invalid address: " << host << ", error: " << (result == 0 ? "Not a valid address" : "Conversion error") << std::endl;
+            cerr << "Invalid address: " << host << ", error: " << (result == 0 ? "Not a valid address" : "Conversion error") << endl;
             closesocket(clientSocket);
             clientSocket = INVALID_SOCKET;
             return false;
         }
     }
     
-    // Connect to server
+
     if (::connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-        std::cerr << "Connect failed: " << WSAGetLastError() << std::endl;
+        cerr << "Connect failed: " << WSAGetLastError() << endl;
         closesocket(clientSocket);
         clientSocket = INVALID_SOCKET;
         return false;
@@ -135,16 +128,14 @@ bool ClientSocket::send(const String& message) {
         return false;
     }
     
-    // Add message length prefix
     uint32_t length = message.length();
     if (::send(clientSocket, (char*)&length, sizeof(length), 0) == SOCKET_ERROR) {
-        std::cerr << "Send length failed: " << WSAGetLastError() << std::endl;
+        cerr << "Send length failed: " << WSAGetLastError() << endl;
         return false;
     }
-    
-    // Send message
+
     if (::send(clientSocket, message.c_str(), length, 0) == SOCKET_ERROR) {
-        std::cerr << "Send message failed: " << WSAGetLastError() << std::endl;
+        cerr << "Send message failed: " << WSAGetLastError() << endl;
         return false;
     }
     
@@ -155,31 +146,27 @@ String ClientSocket::receive() {
     if (!connected || clientSocket == INVALID_SOCKET) {
         return "";
     }
-    
-    // Receive message length
+
     uint32_t length = 0;
     int bytesReceived = ::recv(clientSocket, (char*)&length, sizeof(length), 0);
     
     if (bytesReceived <= 0) {
         if (bytesReceived == 0) {
-            // Connection closed
             close();
         } else {
-            std::cerr << "Receive length failed: " << WSAGetLastError() << std::endl;
+            cerr << "Receive length failed: " << WSAGetLastError() << endl;
         }
         return "";
     }
-    
-    // Receive message
-    std::vector<char> buffer(length + 1, 0);
+
+    vector<char> buffer(length + 1, 0);
     bytesReceived = ::recv(clientSocket, buffer.data(), length, 0);
     
     if (bytesReceived <= 0) {
         if (bytesReceived == 0) {
-            // Connection closed
             close();
         } else {
-            std::cerr << "Receive message failed: " << WSAGetLastError() << std::endl;
+            cerr << "Receive message failed: " << WSAGetLastError() << endl;
         }
         return "";
     }
