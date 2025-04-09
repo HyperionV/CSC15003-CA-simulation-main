@@ -1,9 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-echo ====================================
-echo CA Management System - Requirements Check
-echo ====================================
+echo CA Management Simulation - Requirements Check
 echo.
 
 set REQUIREMENTS_MET=yes
@@ -13,12 +11,11 @@ set CPP_STANDARD_REQUIRED=C++17
 echo Checking system requirements...
 echo.
 
-:: Check for CMake
-echo [1/4] Checking for CMake %CMAKE_VERSION_REQUIRED%+...
+echo [1/3] Checking for CMake %CMAKE_VERSION_REQUIRED%+...
 where cmake >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo [FAILED] CMake not found in PATH
-    echo         Please install CMake %CMAKE_VERSION_REQUIRED% or later from https://cmake.org/download/
+    echo         Please follow instructions in README.md to install CMake
     set REQUIREMENTS_MET=no
 ) else (
     for /f "tokens=3" %%i in ('cmake --version ^| findstr /C:"version"') do (
@@ -28,11 +25,9 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo.
 
-:: Check for C++ compiler - improved detection
-echo [2/4] Checking for C++ compiler with %CPP_STANDARD_REQUIRED% support...
+echo [2/3] Checking for C++ compiler with %CPP_STANDARD_REQUIRED% support...
 set CPP_COMPILER_FOUND=no
 
-:: Check for MSVC (Visual Studio)
 where cl >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
     for /f "tokens=*" %%i in ('cl 2^>^&1 ^| findstr /C:"Version"') do (
@@ -41,7 +36,6 @@ if %ERRORLEVEL% EQU 0 (
     )
 )
 
-:: Check for GCC/MinGW
 if "!CPP_COMPILER_FOUND!"=="no" (
     where g++ >nul 2>&1
     if %ERRORLEVEL% EQU 0 (
@@ -52,7 +46,6 @@ if "!CPP_COMPILER_FOUND!"=="no" (
     )
 )
 
-:: Try to detect compilers via Visual Studio installation
 if "!CPP_COMPILER_FOUND!"=="no" (
     if exist "C:\Program Files\Microsoft Visual Studio" (
         echo [PASSED] Visual Studio installation detected - compiler likely available
@@ -63,7 +56,6 @@ if "!CPP_COMPILER_FOUND!"=="no" (
     )
 )
 
-:: Try to detect MinGW installation in common locations
 if "!CPP_COMPILER_FOUND!"=="no" (
     if exist "C:\MinGW\bin\g++.exe" (
         echo [PASSED] MinGW installation detected at C:\MinGW
@@ -74,22 +66,16 @@ if "!CPP_COMPILER_FOUND!"=="no" (
     )
 )
 
-:: Final compiler check result
 if "!CPP_COMPILER_FOUND!"=="no" (
-    echo [WARNING] No C++ compiler found in PATH
-    echo          However, if you've installed Visual Studio or MinGW but haven't
-    echo          added it to PATH, the build might still work.
-    echo          - For Visual Studio: Try running from Developer Command Prompt
-    echo          - For MinGW: Ensure g++ is in your PATH
+    echo [WARNING] No C++ compiler found in PATH. Please follow instructions in README.md to install a C++ compiler or to troubleshoot the issue.
 )
 echo.
 
-:: Check for OpenSSL
-echo [3/4] Checking for OpenSSL...
+echo [3/3] Checking for OpenSSL...
 where openssl >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo [FAILED] OpenSSL not found in PATH
-    echo         Please install OpenSSL from https://slproweb.com/products/Win32OpenSSL.html
+    echo         Please follow instructions in README.md to install OpenSSL
     set REQUIREMENTS_MET=no
 ) else (
     for /f "tokens=2" %%i in ('openssl version') do (
@@ -99,31 +85,22 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo.
 
-:: Check for SQLite (optional on Windows as it's included in the project)
-echo [4/4] Checking for SQLite libraries...
-echo [INFO] SQLite is included in the project, no external installation required
-echo        If you encounter SQLite issues during build, see README.md
-echo.
 
-:: Final summary
-echo ====================================
-echo Summary
-echo ====================================
+
 if "%REQUIREMENTS_MET%"=="yes" (
     echo [SUCCESS] All required components are present.
     echo          You can proceed with running build.bat to build the application.
 ) else (
-    echo [WARNING] Some requirements are missing. Please install the missing components
+    echo [WARNING] Some requirements are missing. Please install the missing components following instructions in README.md
     echo          before proceeding with the installation.
     echo          However, if you've successfully built the project before, you may
     echo          still be able to proceed despite these warnings.
 )
 echo.
 
-:: Check if build folder exists
 if exist "%~dp0build" (
     echo [INFO] Build directory already exists. You may need to clean it before rebuilding.
-    echo        To clean: 'rmdir /S /Q build'
+    echo        To clean: 'rmdir /S /Q build' or delete the /build folder manually
 )
 
 pause 
