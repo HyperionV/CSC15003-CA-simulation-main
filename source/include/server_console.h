@@ -18,20 +18,16 @@ private:
     DatabaseManager& db;
     bool running;
     
-    // Menu functions
     void displayMainMenu();
     void viewLogs();
     void manageUsers();
     void certificateOperations();
     
-    // Certificate operation helper methods
     void listCertificates();
     void viewCertificateDetails();
     void approveCertificateRequest();
     void revokeCertificate();
 
-    
-    // Helper functions
     void displayServerStatus();
     String getInput(const String& prompt);
     int getIntInput(const String& prompt);

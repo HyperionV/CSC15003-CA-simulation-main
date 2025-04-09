@@ -1,21 +1,16 @@
 #include "../include/certificate_authority.h"
 #include <fstream>
 
-// For JSON parsing, we'll use a simple approach
-// In a real project, you would use a dedicated JSON library like nlohmann/json
-// Here we'll implement a very basic JSON parser for simplicity
 class SimpleJSON {
 public:
-    static std::map<String, String> parse(const String& jsonStr) {
-        std::map<String, String> result;
+    static map<String, String> parse(const String& jsonStr) {
+        map<String, String> result;
         size_t pos = 0;
         
-        // Find opening brace
         pos = jsonStr.find('{', pos);
         if (pos == String::npos) return result;
         
         while (true) {
-            // Find key
             pos = jsonStr.find('"', pos + 1);
             if (pos == String::npos) break;
             
@@ -24,38 +19,30 @@ public:
             if (pos == String::npos) break;
             
             String key = jsonStr.substr(keyStart, pos - keyStart);
-            
-            // Find colon
             pos = jsonStr.find(':', pos + 1);
             if (pos == String::npos) break;
             
-            // Find value
             pos = jsonStr.find_first_not_of(" \t\r\n", pos + 1);
             if (pos == String::npos) break;
             
             String value;
             if (jsonStr[pos] == '"') {
-                // String value
                 size_t valueStart = pos + 1;
                 pos = jsonStr.find('"', pos + 1);
                 if (pos == String::npos) break;
                 value = jsonStr.substr(valueStart, pos - valueStart);
             } else if (isdigit(jsonStr[pos]) || jsonStr[pos] == '-') {
-                // Number value
                 size_t valueStart = pos;
                 pos = jsonStr.find_first_of(",}", pos + 1);
                 if (pos == String::npos) break;
                 value = jsonStr.substr(valueStart, pos - valueStart);
-                // Adjust position to point to the delimiter
                 pos--;
             } else {
-                // Unknown value type
                 break;
             }
             
             result[key] = value;
             
-            // Find comma or closing brace
             pos = jsonStr.find_first_of(",}", pos + 1);
             if (pos == String::npos || jsonStr[pos] == '}') break;
         }
@@ -63,7 +50,7 @@ public:
         return result;
     }
     
-    static String serialize(const std::map<String, String>& data, bool prettyPrint = false) {
+    static String serialize(const map<String, String>& data, bool prettyPrint = false) {
         String result = "{";
         if (prettyPrint) result += "\n";
         
@@ -75,8 +62,6 @@ public:
             }
             if (prettyPrint) result += "    ";
             result += "\"" + entry.first + "\": ";
-            
-            // Check if value is a number
             bool isNumber = true;
             for (char c : entry.second) {
                 if (!isdigit(c) && c != '-' && c != '.') {
@@ -105,157 +90,132 @@ CertificateAuthority::CertificateAuthority(DatabaseManager& dbManager, OpenSSLWr
 }
 
 bool CertificateAuthority::initialize(const String& configPath) {
-    // Create directories if they don't exist
-    std::filesystem::create_directories(CERT_DIR);
-    std::filesystem::create_directories(KEY_DIR);
+    filesystem::create_directories(CERT_DIR);
+    filesystem::create_directories(KEY_DIR);
     
-    // Try to load existing CA keys
     if (loadCAKeys(configPath)) {
-        std::cout << "Loaded existing CA keys" << std::endl;
+        cout << "Loaded existing CA keys" << endl;
         return true;
     }
-    
-    // If loading fails, create a new self-signed CA
-    std::cout << "Creating new self-signed CA..." << std::endl;
+    cout << "Creating new self-signed CA..." << endl;
     return createSelfSignedCA();
 }
 
 bool CertificateAuthority::loadCAKeys(const String& configPath) {
     try {
-        // Read config file
-        std::ifstream configFile(configPath);
+        ifstream configFile(configPath);
         if (!configFile.is_open()) {
             return false;
         }
         
-        // Read the entire file into a string
-        std::stringstream configStream;
+        stringstream configStream;
         configStream << configFile.rdbuf();
         String configStr = configStream.str();
         
-        // Parse config
         auto config = SimpleJSON::parse(configStr);
         
-        // Check if we should use PKCS#12
         usePKCS12 = false;
         if (config.find("usePKCS12") != config.end()) {
             usePKCS12 = (config["usePKCS12"] == "true");
         }
         
         if (usePKCS12) {
-            // Load from PKCS#12 file
             String p12Path = config["caP12Path"];
             caPassword = config["caPassword"];
             caSubject = config["caSubject"];
-            defaultValidityDays = std::stoi(config["defaultValidityDays"]);
+            defaultValidityDays = stoi(config["defaultValidityDays"]);
             
             return loadCAKeysFromPKCS12(p12Path);
         } else {
-            // Get paths from config (traditional PEM format)
             String caKeyPath = config["caKeyPath"];
             String caCertPath = config["caCertPath"];
             caSubject = config["caSubject"];
-            defaultValidityDays = std::stoi(config["defaultValidityDays"]);
+            defaultValidityDays = stoi(config["defaultValidityDays"]);
             
-            // Read CA private key
-            std::ifstream keyFile(caKeyPath);
+            ifstream keyFile(caKeyPath);
             if (!keyFile.is_open()) {
                 return false;
             }
-            std::stringstream keyStream;
+            stringstream keyStream;
             keyStream << keyFile.rdbuf();
             caPrivateKey = keyStream.str();
             
-            // Read CA certificate
-            std::ifstream certFile(caCertPath);
+            ifstream certFile(caCertPath);
             if (!certFile.is_open()) {
                 return false;
             }
-            std::stringstream certStream;
+            stringstream certStream;
             certStream << certFile.rdbuf();
             caCertificate = certStream.str();
             
             return true;
         }
     }
-    catch (const std::exception& e) {
-        std::cerr << "Error loading CA keys: " << e.what() << std::endl;
+    catch (const exception& e) {
+        cerr << "Error loading CA keys: " << e.what() << endl;
         return false;
     }
 }
 
 bool CertificateAuthority::loadCAKeysFromPKCS12(const String& p12Path) {
     try {
-        // Read PKCS#12 file
-        std::ifstream p12File(p12Path, std::ios::binary);
+        ifstream p12File(p12Path, ios::binary);
         if (!p12File.is_open()) {
-            std::cerr << "Failed to open PKCS#12 file: " << p12Path << std::endl;
+            cerr << "Failed to open PKCS#12 file: " << p12Path << endl;
             return false;
         }
         
-        // Read the entire file into a string
-        std::stringstream p12Stream;
+        stringstream p12Stream;
         p12Stream << p12File.rdbuf();
         String p12Data = p12Stream.str();
         
-        // Extract key and certificate from PKCS#12
         auto keyAndCert = ssl.extractFromPKCS12(p12Data, caPassword);
         caPrivateKey = keyAndCert.first;
         caCertificate = keyAndCert.second;
         
         if (caPrivateKey.empty() || caCertificate.empty()) {
-            std::cerr << "Failed to extract key and certificate from PKCS#12 file" << std::endl;
+            cerr << "Failed to extract key and certificate from PKCS#12 file" << endl;
             return false;
         }
         
         return true;
     }
-    catch (const std::exception& e) {
-        std::cerr << "Error loading CA keys from PKCS#12: " << e.what() << std::endl;
+    catch (const exception& e) {
+        cerr << "Error loading CA keys from PKCS#12: " << e.what() << endl;
         return false;
     }
 }
 
 bool CertificateAuthority::createSelfSignedCA() {
     try {
-        // Default CA subject if not specified
         if (caSubject.empty()) {
             caSubject = "CN=CA Management System,O=University Project,C=US";
         }
         
-        // Default validity if not specified
         if (defaultValidityDays <= 0) {
             defaultValidityDays = 365;
         }
         
-        // Generate CA key pair
         auto keyPair = ssl.generateRSAKeyPair(4096);
         caPrivateKey = keyPair.first;
         
-        // Save private key
-        std::ofstream keyFile(KEY_DIR + "ca_private.key");
+        ofstream keyFile(KEY_DIR + "ca_private.key");
         keyFile << caPrivateKey;
         keyFile.close();
         
-        // Create self-signed certificate
-        // Generate a CSR for the CA
         String csrData = ssl.generateCSR(caPrivateKey, caSubject);
         
-        // Self-sign the CSR with a longer validity (10 years)
         caCertificate = ssl.signCSR(csrData, caPrivateKey, "", 3650, true);
         
-        // Save certificate
-        std::ofstream certFile(CERT_DIR + "ca_cert.pem");
+        ofstream certFile(CERT_DIR + "ca_cert.pem");
         certFile << caCertificate;
         certFile.close();
         
-        // Check if we should store as PKCS#12
         if (usePKCS12) {
             storeCAKeysAsPKCS12();
         }
         
-        // Create config file
-        std::map<String, String> config;
+        map<String, String> config;
         
         if (usePKCS12) {
             config["caP12Path"] = CERT_DIR + "ca_cert.p12";
@@ -268,84 +228,75 @@ bool CertificateAuthority::createSelfSignedCA() {
         }
         
         config["caSubject"] = caSubject;
-        config["defaultValidityDays"] = std::to_string(defaultValidityDays);
+        config["defaultValidityDays"] = to_string(defaultValidityDays);
         
-        std::ofstream configFile(DATA_DIR + "ca_config.json");
+        ofstream configFile(DATA_DIR + "ca_config.json");
         configFile << SimpleJSON::serialize(config, true);
         configFile.close();
         
         return true;
     }
-    catch (const std::exception& e) {
-        std::cerr << "Error creating self-signed CA: " << e.what() << std::endl;
+    catch (const exception& e) {
+        cerr << "Error creating self-signed CA: " << e.what() << endl;
         return false;
     }
 }
 
 bool CertificateAuthority::storeCAKeysAsPKCS12() {
     try {
-        // If password is empty, prompt for one
         if (caPassword.empty()) {
-            std::cout << "Enter password for CA PKCS#12 file: ";
-            std::getline(std::cin, caPassword);
+            cout << "Enter password for CA PKCS#12 file: ";
+            getline(cin, caPassword);
             
             if (caPassword.empty()) {
-                std::cerr << "Password cannot be empty for PKCS#12 format." << std::endl;
+                cerr << "Password cannot be empty for PKCS#12 format." << endl;
                 return false;
             }
         }
         
-        // Create PKCS#12 with CA key and certificate
         String p12Data = ssl.createPKCS12(caPrivateKey, caCertificate, caPassword, "CA Certificate");
         
         if (p12Data.empty()) {
-            std::cerr << "Failed to create PKCS#12 file for CA" << std::endl;
+            cerr << "Failed to create PKCS#12 file for CA" << endl;
             return false;
         }
         
-        // Save PKCS#12 file
-        std::ofstream p12File(CERT_DIR + "ca_cert.p12", std::ios::binary);
+        ofstream p12File(CERT_DIR + "ca_cert.p12", ios::binary);
         p12File.write(p12Data.data(), p12Data.size());
         p12File.close();
         
-        std::cout << "CA keys stored in PKCS#12 format." << std::endl;
+        cout << "CA keys stored in PKCS#12 format." << endl;
         return true;
     }
-    catch (const std::exception& e) {
-        std::cerr << "Error storing CA keys as PKCS#12: " << e.what() << std::endl;
+    catch (const exception& e) {
+        cerr << "Error storing CA keys as PKCS#12: " << e.what() << endl;
         return false;
     }
 }
 
 int CertificateAuthority::submitCSR(const String& csrData, const String& username) {
-    // Validate CSR format
     if (!validateCSR(csrData)) {
         return -1;
     }
     
-    // Extract public key from CSR
     BIO* csrBio = BIO_new_mem_buf(csrData.c_str(), -1);
     X509_REQ* req = PEM_read_bio_X509_REQ(csrBio, nullptr, nullptr, nullptr);
     EVP_PKEY* pubKey = X509_REQ_get_pubkey(req);
     
-    // Convert public key to PEM
     BIO* pubKeyBio = BIO_new(BIO_s_mem());
     PEM_write_bio_PUBKEY(pubKeyBio, pubKey);
     String publicKeyPEM = ssl.bioToString(pubKeyBio);
     
-    // Cleanup
     BIO_free(csrBio);
     BIO_free(pubKeyBio);
     EVP_PKEY_free(pubKey);
     X509_REQ_free(req);
     
-    // Get user ID
     int userID = db.getUserID(username);
     if (userID < 0) {
         return -1;
     }
     
-    // Store CSR in database
     return db.storeCSR(userID, publicKeyPEM, csrData);
 }
 
@@ -354,21 +305,16 @@ bool CertificateAuthority::validateCSR(const String& csrData) {
 }
 
 int CertificateAuthority::issueCertificate(int requestID, int validityDays) {
-    // Get CSR data from database
     auto csrInfo = db.getCSRInfo(requestID);
     if (csrInfo.csrData.empty() || csrInfo.status != "pending") {
         return -1;
     }
     
-    // Use configured validity days if not specified
     if (validityDays <= 0) {
         validityDays = defaultValidityDays;
     }
-    
-    // Sign the CSR
     String certPEM = ssl.signCSR(csrInfo.csrData, caPrivateKey, caCertificate, validityDays);
     
-    // Parse the certificate to extract information
     BIO* bio = BIO_new_mem_buf(certPEM.c_str(), -1);
     X509* cert = PEM_read_bio_X509(bio, nullptr, nullptr, nullptr);
     BIO_free(bio);
@@ -377,10 +323,8 @@ int CertificateAuthority::issueCertificate(int requestID, int validityDays) {
         return -1;
     }
     
-    // Extract certificate information
     int version = X509_get_version(cert) + 1;
     
-    // Get serial number as string
     ASN1_INTEGER* serialASN1 = X509_get_serialNumber(cert);
     BIGNUM* bn = ASN1_INTEGER_to_BN(serialASN1, nullptr);
     char* serialStr = BN_bn2hex(bn);
@@ -388,11 +332,9 @@ int CertificateAuthority::issueCertificate(int requestID, int validityDays) {
     OPENSSL_free(serialStr);
     BN_free(bn);
     
-    // Get signature algorithm
     int sig_nid = X509_get_signature_nid(cert);
     String signatureAlgorithm = OBJ_nid2ln(sig_nid);
     
-    // Get issuer and subject names
     char issuerStr[256];
     char subjectStr[256];
     X509_NAME_oneline(X509_get_issuer_name(cert), issuerStr, sizeof(issuerStr));
@@ -400,26 +342,23 @@ int CertificateAuthority::issueCertificate(int requestID, int validityDays) {
     String issuerName = issuerStr;
     String subjectName = subjectStr;
     
-    // Get validity period
     const ASN1_TIME* notBefore = X509_get_notBefore(cert);
     const ASN1_TIME* notAfter = X509_get_notAfter(cert);
     
-    // Convert ASN1_TIME to time_t (simplified)
     struct tm tm_before = {0};
     struct tm tm_after = {0};
     
-    // Extract year, month, day from ASN1_TIME
-    // This is a simplification - OpenSSL has better functions for this
+
     if (notBefore->type == V_ASN1_UTCTIME) {
         tm_before.tm_year = (notBefore->data[0] - '0') * 10 + (notBefore->data[1] - '0');
-        if (tm_before.tm_year < 50) tm_before.tm_year += 100; // 2000+
+        if (tm_before.tm_year < 50) tm_before.tm_year += 100; 
         tm_before.tm_mon = (notBefore->data[2] - '0') * 10 + (notBefore->data[3] - '0') - 1;
         tm_before.tm_mday = (notBefore->data[4] - '0') * 10 + (notBefore->data[5] - '0');
     }
     
     if (notAfter->type == V_ASN1_UTCTIME) {
         tm_after.tm_year = (notAfter->data[0] - '0') * 10 + (notAfter->data[1] - '0');
-        if (tm_after.tm_year < 50) tm_after.tm_year += 100; // 2000+
+        if (tm_after.tm_year < 50) tm_after.tm_year += 100; 
         tm_after.tm_mon = (notAfter->data[2] - '0') * 10 + (notAfter->data[3] - '0') - 1;
         tm_after.tm_mday = (notAfter->data[4] - '0') * 10 + (notAfter->data[5] - '0');
     }
@@ -427,12 +366,10 @@ int CertificateAuthority::issueCertificate(int requestID, int validityDays) {
     time_t validFrom = mktime(&tm_before);
     time_t validTo = mktime(&tm_after);
     
-    // Store certificate in database
     int certID = db.storeCertificate(serialNumber, version, signatureAlgorithm,
                                     issuerName, subjectName, validFrom, validTo,
                                     csrInfo.publicKey, csrInfo.subjectID, certPEM);
     
-    // Update CSR status
     if (certID > 0) {
         db.updateCSRStatus(requestID, "approved", certID);
     }
@@ -442,35 +379,28 @@ int CertificateAuthority::issueCertificate(int requestID, int validityDays) {
 }
 
 bool CertificateAuthority::revokeCertificate(int certificateID, const String& reason, const String& username) {
-    // Get certificate info
     auto certInfo = db.getCertificateInfo(certificateID);
     if (certInfo.serialNumber.empty()) {
         return false;
     }
     
-    // Check if user is authorized (owner or admin)
     int userID = db.getUserID(username);
     String userRole = db.getUserRole(username);
     
     if (userID != certInfo.ownerID && userRole != "admin") {
         return false;
     }
-    
-    // Revoke certificate
     return db.revokeCertificate(certificateID, certInfo.serialNumber, reason, userID);
 }
 
 bool CertificateAuthority::validateCertificate(const String& certData) {
-    // First, verify certificate against CA certificate
     bool valid = ssl.verifyCertificate(certData, caCertificate);
     
     if (!valid) {
         return false;
     }
     
-    // If certificate is signed by CA, check if it's been revoked
     try {
-        // Parse certificate to extract serial number
         BIO* certBio = BIO_new_mem_buf(certData.c_str(), -1);
         X509* cert = PEM_read_bio_X509(certBio, nullptr, nullptr, nullptr);
         BIO_free(certBio);
@@ -479,7 +409,6 @@ bool CertificateAuthority::validateCertificate(const String& certData) {
             return false;
         }
         
-        // Get serial number as string
         ASN1_INTEGER* serialASN1 = X509_get_serialNumber(cert);
         BIGNUM* bn = ASN1_INTEGER_to_BN(serialASN1, nullptr);
         char* serialStr = BN_bn2hex(bn);
@@ -488,34 +417,27 @@ bool CertificateAuthority::validateCertificate(const String& certData) {
         BN_free(bn);
         X509_free(cert);
         
-        // Check if serial number exists in revoked certificates
         auto revokedCerts = db.getRevokedCertificates();
         for (const auto& revokedCert : revokedCerts) {
             if (revokedCert.first == serialNumber) {
-                return false; // Certificate has been revoked
+                return false; 
             }
         }
         
-        return true; // Certificate is valid and not revoked
+        return true; 
     }
-    catch (const std::exception& e) {
-        std::cerr << "Error validating certificate: " << e.what() << std::endl;
+    catch (const exception& e) {
+        cerr << "Error validating certificate: " << e.what() << endl;
         return false;
     }
 }
 
 String CertificateAuthority::generateCRL() {
-    // Get list of revoked certificates
     auto revokedCerts = db.getRevokedCertificates();
-    
-    // Generate CRL
     String crlPEM = ssl.generateCRL(revokedCerts, caPrivateKey, caCertificate);
-    
-    // Save CRL to file
-    std::ofstream crlFile(CERT_DIR + "ca.crl");
+    ofstream crlFile(CERT_DIR + "ca.crl");
     crlFile << crlPEM;
     crlFile.close();
-    
     return crlPEM;
 }
 

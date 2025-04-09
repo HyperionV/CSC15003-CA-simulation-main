@@ -10,19 +10,14 @@ DatabaseManager::~DatabaseManager() {
 }
 
 bool DatabaseManager::initialize() {
-    // Create directories if they don't exist
-    std::filesystem::create_directories(DB_DIR);
-    
-    // Open database connection
+    filesystem::create_directories(DB_DIR);
     int rc = sqlite3_open(DB_FILE.c_str(), &db);
     if (rc) {
-        std::cerr << "Cannot open database: " << sqlite3_errmsg(db) << std::endl;
+        cerr << "Cannot open database: " << sqlite3_errmsg(db) << endl;
         sqlite3_close(db);
         db = nullptr;
         return false;
     }
-    
-    // Create tables if they don't exist
     return createTables();
 }
 
@@ -92,7 +87,6 @@ bool DatabaseManager::createTables() {
         "FOREIGN KEY (doneBy) REFERENCES Users(userID)"
         ");";
     
-    // Execute each table creation query
     if (!executeQuery(createUsersTable) ||
         !executeQuery(createCertificatesTable) ||
         !executeQuery(createRequestsTable) ||
@@ -100,8 +94,6 @@ bool DatabaseManager::createTables() {
         !executeQuery(createLogsTable)) {
         return false;
     }
-    
-    // Create initial admin user if not exists
     const char* checkAdmin = "SELECT COUNT(*) FROM Users WHERE role = 'admin';";
     sqlite3_stmt* stmt;
     
@@ -116,10 +108,8 @@ bool DatabaseManager::createTables() {
     sqlite3_finalize(stmt);
     
     if (!hasAdmin) {
-        // Create default admin user with password "admin"
-        // In a real system, this would be a secure password
         addUser("admin", "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", "admin@example.com", "admin");
-        std::cout << "Created default admin user (username: admin, password: admin)" << std::endl;
+        cout << "Created default admin user (username: admin, password: admin)" << endl;
     }
     
     return true;
@@ -130,7 +120,7 @@ bool DatabaseManager::executeQuery(const String& query) {
     int rc = sqlite3_exec(db, query.c_str(), nullptr, nullptr, &errMsg);
     
     if (rc != SQLITE_OK) {
-        std::cerr << "SQL error: " << errMsg << std::endl;
+        cerr << "SQL error: " << errMsg << endl;
         sqlite3_free(errMsg);
         return false;
     }
@@ -138,7 +128,7 @@ bool DatabaseManager::executeQuery(const String& query) {
     return true;
 }
 
-bool DatabaseManager::executeQueryWithParams(const String& query, const std::vector<String>& params) {
+bool DatabaseManager::executeQueryWithParams(const String& query, const vector<String>& params) {
     sqlite3_stmt* stmt;
     
     if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
@@ -155,28 +145,21 @@ bool DatabaseManager::executeQueryWithParams(const String& query, const std::vec
     return result;
 }
 
-// User management methods
 bool DatabaseManager::addUser(const String& username, const String& passwordHash, 
                              const String& email, const String& role) {
     if (!db) return false;
-    
-    // First check if the user already exists
     const char* checkQuery = "SELECT COUNT(*) FROM Users WHERE username = ?;";
     sqlite3_stmt* checkStmt;
-    
     if (sqlite3_prepare_v2(db, checkQuery, -1, &checkStmt, nullptr) != SQLITE_OK) {
         return false;
     }
-    
     sqlite3_bind_text(checkStmt, 1, username.c_str(), -1, SQLITE_STATIC);
-    
     bool userExists = false;
     if (sqlite3_step(checkStmt) == SQLITE_ROW) {
         userExists = (sqlite3_column_int(checkStmt, 0) > 0);
     }
     sqlite3_finalize(checkStmt);
-    
-    // If this is a test user and we're in a test environment, first remove any existing user with that name
+
     if (userExists && (username == "testuser" || username == "testauth")) {
         const char* deleteQuery = "DELETE FROM Users WHERE username = ?;";
         sqlite3_stmt* deleteStmt;
@@ -193,11 +176,8 @@ bool DatabaseManager::addUser(const String& username, const String& passwordHash
             return false;
         }
     } else if (userExists) {
-        // For non-test users that already exist, return false
         return false;
     }
-    
-    // Now insert the user
     const char* query = "INSERT INTO Users (username, passwordHash, email, role) "
                        "VALUES (?, ?, ?, ?);";
     sqlite3_stmt* stmt;
@@ -310,7 +290,6 @@ String DatabaseManager::getUserRole(const String& username) {
     return role;
 }
 
-// Certificate operations
 int DatabaseManager::storeCSR(int userID, const String& publicKey, const String& csrData) {
     if (!db) return -1;
     
@@ -332,8 +311,7 @@ int DatabaseManager::storeCSR(int userID, const String& publicKey, const String&
     if (!result) {
         return -1;
     }
-    
-    // Get the ID of the inserted CSR
+
     const char* lastIDQuery = "SELECT last_insert_rowid();";
     if (sqlite3_prepare_v2(db, lastIDQuery, -1, &stmt, nullptr) != SQLITE_OK) {
         return -1;
@@ -345,10 +323,9 @@ int DatabaseManager::storeCSR(int userID, const String& publicKey, const String&
     }
     
     sqlite3_finalize(stmt);
-    
-    // Log the CSR submission
+
     if (requestID > 0) {
-        logActivity("CSR submitted", userID, requestID, "New CSR from user " + std::to_string(userID));
+        logActivity("CSR submitted", userID, requestID, "New CSR from user " + to_string(userID));
     }
     
     return requestID;
@@ -386,7 +363,6 @@ bool DatabaseManager::storeCertificate(const String& serialNumber, int version,
     bool result = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
     
-    // Get the ID of the inserted certificate
     int certificateID = -1;
     if (result) {
         const char* lastIDQuery = "SELECT last_insert_rowid();";
@@ -399,10 +375,9 @@ bool DatabaseManager::storeCertificate(const String& serialNumber, int version,
         }
         
         sqlite3_finalize(stmt);
-        
-        // Log the certificate issuance
+
         if (certificateID > 0) {
-            logActivity("Certificate issued", 1, certificateID, "Certificate issued to user " + std::to_string(ownerID));
+            logActivity("Certificate issued", 1, certificateID, "Certificate issued to user " + to_string(ownerID));
         }
     }
     
@@ -412,8 +387,6 @@ bool DatabaseManager::storeCertificate(const String& serialNumber, int version,
 bool DatabaseManager::revokeCertificate(int certificateID, const String& serialNumber, 
                                        const String& reason, int revokedBy) {
     if (!db) return false;
-    
-    // First, update the certificate status
     const char* updateQuery = "UPDATE Certificates SET status = 'revoked' WHERE certificateID = ?;";
     sqlite3_stmt* stmt;
     
@@ -429,8 +402,7 @@ bool DatabaseManager::revokeCertificate(int certificateID, const String& serialN
     if (!updateResult) {
         return false;
     }
-    
-    // Then, insert into revoked certificates
+
     const char* insertQuery = "INSERT INTO RevokedCertificates "
                              "(certificateID, serialNumber, reason, revokedBy) "
                              "VALUES (?, ?, ?, ?);";
@@ -448,7 +420,6 @@ bool DatabaseManager::revokeCertificate(int certificateID, const String& serialN
     sqlite3_finalize(stmt);
     
     if (insertResult) {
-        // Log the revocation
         logActivity("Certificate revoked", revokedBy, certificateID, 
                    "Certificate " + serialNumber + " revoked for reason: " + reason);
     }
@@ -456,7 +427,6 @@ bool DatabaseManager::revokeCertificate(int certificateID, const String& serialN
     return insertResult;
 }
 
-// CSR and Certificate information retrieval
 DatabaseManager::CSRInfo DatabaseManager::getCSRInfo(int requestID) {
     CSRInfo info;
     info.subjectID = -1;
@@ -515,7 +485,7 @@ bool DatabaseManager::updateCSRStatus(int requestID, const String& status, int c
     
     if (result) {
         // Log the status update
-        logActivity("CSR status updated", 1, requestID, "CSR " + std::to_string(requestID) + " status: " + status);
+        logActivity("CSR status updated", 1, requestID, "CSR " + to_string(requestID) + " status: " + status);
     }
     
     return result;
@@ -563,7 +533,6 @@ int DatabaseManager::getPendingCSRCount() {
     return count;
 }
 
-// Logging
 bool DatabaseManager::logActivity(const String& action, int doneBy, int objectID, const String& details) {
     if (!db) return false;
     
@@ -586,9 +555,8 @@ bool DatabaseManager::logActivity(const String& action, int doneBy, int objectID
     return result;
 }
 
-// New methods for server console
-std::vector<DatabaseManager::UserInfo> DatabaseManager::getUsers() {
-    std::vector<UserInfo> users;
+vector<DatabaseManager::UserInfo> DatabaseManager::getUsers() {
+    vector<UserInfo> users;
     
     if (!db) return users;
     
@@ -613,8 +581,8 @@ std::vector<DatabaseManager::UserInfo> DatabaseManager::getUsers() {
     return users;
 }
 
-std::vector<DatabaseManager::LogEntry> DatabaseManager::getLogs(const String& filter, int offset, int limit) {
-    std::vector<LogEntry> logs;
+vector<DatabaseManager::LogEntry> DatabaseManager::getLogs(const String& filter, int offset, int limit) {
+    vector<LogEntry> logs;
     
     if (!db) return logs;
     
@@ -657,8 +625,8 @@ std::vector<DatabaseManager::LogEntry> DatabaseManager::getLogs(const String& fi
     return logs;
 }
 
-std::vector<DatabaseManager::CSREntry> DatabaseManager::getPendingCSRs() {
-    std::vector<CSREntry> csrs;
+vector<DatabaseManager::CSREntry> DatabaseManager::getPendingCSRs() {
+    vector<CSREntry> csrs;
     
     if (!db) return csrs;
     
@@ -686,8 +654,8 @@ std::vector<DatabaseManager::CSREntry> DatabaseManager::getPendingCSRs() {
     return csrs;
 }
 
-std::vector<DatabaseManager::CertificateEntry> DatabaseManager::getAllCertificates() {
-    std::vector<CertificateEntry> certificates;
+vector<DatabaseManager::CertificateEntry> DatabaseManager::getAllCertificates() {
+    vector<CertificateEntry> certificates;
     
     if (!db) return certificates;
     
@@ -735,8 +703,8 @@ bool DatabaseManager::updateUserRole(int userID, const String& newRole) {
     return result;
 }
 
-std::vector<DatabaseManager::CertificateEntry> DatabaseManager::getUserCertificates(int userID) {
-    std::vector<CertificateEntry> certificates;
+vector<DatabaseManager::CertificateEntry> DatabaseManager::getUserCertificates(int userID) {
+    vector<CertificateEntry> certificates;
     
     if (!db) return certificates;
     
@@ -789,8 +757,8 @@ String DatabaseManager::getCertificateData(int certificateID) {
     return certificateData;
 }
 
-std::vector<std::pair<String, String>> DatabaseManager::getRevokedCertificates() {
-    std::vector<std::pair<String, String>> revokedCerts;
+vector<pair<String, String>> DatabaseManager::getRevokedCertificates() {
+    vector<pair<String, String>> revokedCerts;
     
     if (!db) return revokedCerts;
     
