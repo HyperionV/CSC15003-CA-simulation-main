@@ -343,7 +343,6 @@ void ClientConsole::downloadCertificate() {
             String certificateData = responseJson["data"]["certificateData"];
             String subjectName = responseJson["data"]["subjectName"];
             
-            // Create the Certs directory if it doesn't exist
             const String certsDir = "Certs";
             filesystem::create_directories(certsDir);
             
@@ -357,25 +356,20 @@ void ClientConsole::downloadCertificate() {
                 displayMessage("Certificate downloaded successfully to " + filename);
             }
             else {
-                // PKCS#12 format - need private key and password
-                // Find the matching private key
                 String privateKey = findMatchingPrivateKey(certificateData, subjectName);
                 if (privateKey.empty()) {
                     displayMessage("Failed to find matching private key. PKCS#12 format requires a private key.");
                     return;
                 }
                 
-                // Get a password for protecting the PKCS#12 file
                 String password = maskInput("Enter password to protect the PKCS#12 file: ");
                 if (password.empty()) {
                     displayMessage("Password cannot be empty for PKCS#12 format.");
                     return;
                 }
                 
-                // Create friendly name from subject or certificate ID
                 String friendlyName = "Certificate_" + to_string(certID);
                 if (!subjectName.empty()) {
-                    // Try to extract CN if available
                     size_t cnPos = subjectName.find("CN=");
                     if (cnPos != String::npos) {
                         cnPos += 3;
@@ -385,7 +379,6 @@ void ClientConsole::downloadCertificate() {
                     }
                 }
                 
-                // Create PKCS#12 file
                 String p12Data = ssl.createPKCS12(privateKey, certificateData, password, friendlyName);
                 
                 if (p12Data.empty()) {
@@ -393,7 +386,6 @@ void ClientConsole::downloadCertificate() {
                     return;
                 }
                 
-                // Save PKCS#12 file
                 String filename = certsDir + "/certificate_" + to_string(certID) + ".p12";
                 ofstream p12File(filename, ios::binary);
                 p12File.write(p12Data.data(), p12Data.size());
@@ -414,11 +406,9 @@ void ClientConsole::validateCertificate() {
     system("cls");
     cout << "=== Validate Certificate ===" << endl;
     
-    // Create the Certs directory if it doesn't exist
     const String certsDir = "Certs";
     filesystem::create_directories(certsDir);
     
-    // Get list of certificate files in the Certs directory
     vector<String> certFiles;
     try {
         for (const auto& entry : filesystem::directory_iterator(certsDir)) {
@@ -431,13 +421,11 @@ void ClientConsole::validateCertificate() {
         return;
     }
     
-    // Check if any certificate files were found
     if (certFiles.empty()) {
         displayMessage("No certificate files found in the Certs folder. Please download certificates first.");
         return;
     }
     
-    // Display the list of certificate files with indices
     cout << "Available Certificate Files:" << endl;
     cout << "----------------------------" << endl;
     for (size_t i = 0; i < certFiles.size(); i++) {
@@ -448,7 +436,6 @@ void ClientConsole::validateCertificate() {
     cout << "----------------------------" << endl;
     cout << endl;
     
-    // Ask user to select a certificate file by index
     int selection = getIntInput("Enter the number of the certificate to validate (0 to cancel): ");
     if (selection <= 0 || selection > static_cast<int>(certFiles.size())) {
         if (selection != 0) {
@@ -457,10 +444,8 @@ void ClientConsole::validateCertificate() {
         return;
     }
     
-    // Get the selected certificate file
     String filename = certFiles[selection - 1];
     
-    // Read certificate file
     ifstream certFile(filename);
     if (!certFile.is_open()) {
         displayMessage("Failed to open certificate file: " + filename);
@@ -472,11 +457,9 @@ void ClientConsole::validateCertificate() {
     String certificateData = certStream.str();
     certFile.close();
     
-    // Display certificate information
     cout << "\nValidating certificate: " << filesystem::path(filename).filename().string() << endl;
     cout << "----------------------------" << endl;
     
-    // Send validation request
     json payload;
     payload["certificateData"] = certificateData;
     
@@ -497,7 +480,6 @@ void ClientConsole::validateCertificate() {
                 cout << "INVALID" << endl;
                 cout << "The certificate is invalid or has been revoked." << endl;
                 
-                // If there's an error message, display it
                 if (responseJson["data"].contains("error")) {
                     cout << "Error: " << responseJson["data"]["error"].get<String>() << endl;
                 }
@@ -515,26 +497,21 @@ void ClientConsole::validateCertificate() {
 }
 
 String ClientConsole::sendRequest(const String& action, const map<String, String>& payload) {
-    // Build request JSON
     json request;
     request["action"] = action;
     
-    // Add payload
     json payloadJson = json::object();
     for (const auto& pair : payload) {
         payloadJson[pair.first] = pair.second;
     }
     request["payload"] = payloadJson;
     
-    // Add session token if logged in
     if (loggedIn && !sessionToken.empty()) {
         request["token"] = sessionToken;
     }
     
-    // Convert to string
     String requestStr = request.dump();
     
-    // Connect to server
     ClientSocket socket;
     if (!socket.connect("localhost", 8080)) {
         json errorResponse;
@@ -543,7 +520,6 @@ String ClientConsole::sendRequest(const String& action, const map<String, String
         return errorResponse.dump();
     }
     
-    // Send request
     if (!socket.send(requestStr)) {
         json errorResponse;
         errorResponse["status"] = "error";
@@ -551,29 +527,23 @@ String ClientConsole::sendRequest(const String& action, const map<String, String
         return errorResponse.dump();
     }
     
-    // Receive response
     String response = socket.receive();
     
-    // Close connection
     socket.close();
     
     return response;
 }
 
 String ClientConsole::simulateServerResponse(const String& request) {
-    // This is a placeholder function that simulates server responses
-    // In a real implementation, this would be replaced with actual server communication
-    
+
     try {
         json requestJson = json::parse(request);
         String action = requestJson["action"];
         
-        // Simulate different server responses based on action
         if (action == "login") {
             String username = requestJson["payload"]["username"];
             String password = requestJson["payload"]["password"];
             
-            // Simulate successful login for "admin" user with password "admin"
             if (username == "admin" && password == "admin") {
                 json response;
                 response["status"] = "success";
@@ -588,21 +558,18 @@ String ClientConsole::simulateServerResponse(const String& request) {
             }
         }
         else if (action == "register") {
-            // Simulate successful registration
             json response;
             response["status"] = "success";
             response["message"] = "Registration successful";
             return response.dump();
         }
         else if (action == "logout") {
-            // Simulate successful logout
             json response;
             response["status"] = "success";
             response["message"] = "Logout successful";
             return response.dump();
         }
         else if (action == "request_certificate") {
-            // Simulate successful CSR submission
             json response;
             response["status"] = "success";
             response["data"]["requestID"] = 123;
@@ -610,13 +577,11 @@ String ClientConsole::simulateServerResponse(const String& request) {
             return response.dump();
         }
         else if (action == "get_certificates") {
-            // Simulate certificate list
             json response;
             response["status"] = "success";
             
             json certificates = json::array();
             
-            // Add a sample certificate
             json cert1;
             cert1["certificateID"] = 1;
             cert1["serialNumber"] = "ABCDEF1234567890";
@@ -630,14 +595,12 @@ String ClientConsole::simulateServerResponse(const String& request) {
             return response.dump();
         }
         else if (action == "revoke_certificate") {
-            // Simulate certificate revocation
             json response;
             response["status"] = "success";
             response["message"] = "Certificate revoked successfully";
             return response.dump();
         }
         else if (action == "download_certificate") {
-            // Simulate certificate download
             json response;
             response["status"] = "success";
             response["data"]["certificateData"] = "-----BEGIN CERTIFICATE-----\nSample certificate data\n-----END CERTIFICATE-----";
@@ -645,7 +608,6 @@ String ClientConsole::simulateServerResponse(const String& request) {
             return response.dump();
         }
         else {
-            // Unknown action
             json response;
             response["status"] = "error";
             response["message"] = "Unknown action: " + action;
@@ -686,13 +648,11 @@ void ClientConsole::displayMessage(const String& message) {
     waitForEnter();
 }
 
-// Find a private key that matches the given certificate
 String ClientConsole::findMatchingPrivateKey(const String& certificateData, const String& subjectName) {
-    // Use the OpenSSLWrapper utility for finding matching private keys
     String privateKey = ssl.findMatchingPrivateKey(
-        certificateData,   // Certificate PEM data
-        ".",              // Directory to search (current directory)
-        true              // Enable interactive selection if no match found
+        certificateData,   
+        ".",             
+        true              
     );
     
     return privateKey;

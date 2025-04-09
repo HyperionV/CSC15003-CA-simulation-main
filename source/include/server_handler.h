@@ -8,7 +8,7 @@
 #include "auth_system.h"
 #include "certificate_authority.h"
 #include "database.h"
-#include <nlohmann/json.hpp>
+#include "../lib/nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
